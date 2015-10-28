@@ -208,3 +208,10 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
+
+#############
+## Jetbrains
+#############
+
+.idea/
+*.iml
