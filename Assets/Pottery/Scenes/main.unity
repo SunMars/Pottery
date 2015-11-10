@@ -310,6 +310,10 @@ Prefab:
       propertyPath: m_Name
       value: Pottery
       objectReference: {fileID: 0}
+    - target: {fileID: 2300000, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: fe2e7a24bb9b7754d83b25bd3839abaa, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
   m_IsPrefabParent: 0
@@ -388,3 +392,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa7f6857784e70546afa96f53982877e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  revolutionsPerSecond: 1
