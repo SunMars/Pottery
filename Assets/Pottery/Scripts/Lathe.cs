@@ -9,12 +9,12 @@ using System.Collections.Generic;
 public class Lathe : MonoBehaviour
 {
     public Material material;
-    public LathedObject test;
+    public LathedObject lathedObject;
     [Range(3, 64)]
     public int sections;
 
     private Mesh mesh;
-    
+
 
     /// <summary>
     /// This class represents a lathed object created from a spline.
@@ -23,7 +23,7 @@ public class Lathe : MonoBehaviour
     {
         //////////////////////////////
         // constants -----------------
-        
+
         // ---------------------------
 
         // public vars ---------------
@@ -130,7 +130,7 @@ public class Lathe : MonoBehaviour
             float segmentAngle = getAngleForNumberOfSections(segments);
             Vector3 circleOrigin = new Vector3(0, vertex.y, 0);
 
-            List<Vector3> verticesOnCircle = new List<Vector3>{ vertex };
+            List<Vector3> verticesOnCircle = new List<Vector3> { vertex };
 
             for (float angle = 0f; angle < 2 * Mathf.PI; angle += segmentAngle)
             {
@@ -139,6 +139,49 @@ public class Lathe : MonoBehaviour
 
             return verticesOnCircle;
         }
+
+        /// <summary>
+        /// Get all a 2D-list of all vertices for the generated lathed mesh. 
+        /// </summary>
+        /// <param name="spline">The spline from which the lathed object will be created.</param>
+        /// <param name="segments">The number of segments the mesh will be created with.</param>
+        /// <returns>A 2D-list of all mesh vertices.
+        /// e.g.: <code>
+        /// [
+        /// [0, 1, 0],
+        /// [0, 2, 1],
+        /// [0, 3, 4], 
+        /// [0, 4, 3]
+        /// ]</code></returns>
+        private List<List<Vector3>> getLathedMeshVertices(List<Vector3> spline, int segments)
+        {
+            List<List<Vector3>> meshVertices = new List<List<Vector3>>();
+
+            foreach (Vector3 splineVertex in spline)
+            {
+                meshVertices.Add(getVerticesOnCircle(splineVertex, segments));
+            }
+
+            return meshVertices;
+        }
+
+        /// <summary>
+        /// Convert a 2D list into a one dimensional list. This is required for the mesh creation with the Mesh class.
+        /// </summary>
+        /// <param name="verticesList2d"></param>
+        /// <returns>A one dimension <c>List&ltVector3&gt</c></returns>
+        private List<Vector3> List2dToSimpleList(List<List<Vector3>> verticesList2d)
+        {
+            List<Vector3> verticesList = new List<Vector3>() { };
+
+            foreach(List<Vector3> verticesOnCircle in verticesList2d)
+            {
+                verticesList.AddRange(verticesOnCircle);
+            }
+
+            return verticesList;
+        }
+        
 
         /// <summary>
         /// Get the angle of a segment in radians.
@@ -161,11 +204,24 @@ public class Lathe : MonoBehaviour
             createTriangle(splineSection[1], splineSection[2], splineSection[3], triangles);
         }
 
-        private void createTriangle(int a, int b, int c, List<int> triangles)
+        // TODO not finished
+        private List<Vector3> createTrianglesForLathedMesh()
+        {
+            List<Vector3> triangleList = new List<Vector3>() { };
+
+            // TODO create all triangles
+
+            return triangleList;
+        }
+
+        // TODO not finished
+        private List<int> createTriangle(int a, int b, int c, List<int> triangles)
         {
             triangles.Add(a);
             triangles.Add(b);
             triangles.Add(c);
+
+            return triangles;
         }
 
         /// <summary>
@@ -195,7 +251,12 @@ public class Lathe : MonoBehaviour
             return Vector3.Distance(vertex, rotationAxis.Value);
         }
 
-        private float getRadiusOfSection(int sections)
+        /// <summary>
+        /// Get the angle of a section between the tow vertices an the origin of the circle.
+        /// </summary>
+        /// <param name="sections">Number of sections of the lathed mesh.</param>
+        /// <returns>The radius in radiants of the section on the circle.</returns>
+        private float getAngleOfSection(int sections)
         {
             return (2 * Mathf.PI) / sections;
         }
@@ -222,13 +283,12 @@ public class Lathe : MonoBehaviour
         }
     }
 
-
     void Start()
     {
         MeshFilter meshFilter = GetComponent<MeshFilter>();
         mesh = new Mesh();
         meshFilter.mesh = mesh;
-        test = new LathedObject(gameObject, sections, material, mesh, meshFilter);
+        lathedObject = new LathedObject(gameObject, sections, material, mesh, meshFilter);
     }
 
     void Update()
