@@ -24,6 +24,15 @@
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
 
+# Wakatime integration
+# comment these lines if the Editor folder is needed for the project and read the next comment
+/[Aa]ssets/[Ee]ditor/
+/[Aa]ssets/[Ee]ditor.meta
+
+# decomment this if the Editor folder is needed
+# /[Aa]ssets/[Ee]ditor/[Ww]akaTime/
+# /[Aa]ssets/[Ee]ditor/[Ww]akaTime.meta
+
 #############
 ## Windows detritus
 #############
