@@ -10,7 +10,7 @@ public class Lathe : MonoBehaviour
 {
     public Material material;
     public LathedObject test;
-    [Range(3, 6)]
+    [Range(3, 64)]
     public int sections;
 
     private Mesh mesh;
@@ -104,7 +104,7 @@ public class Lathe : MonoBehaviour
                 new Vector2(0, 1)
             };
 
-            triangles = new []
+            triangles = new int[]
             {
                 2, 1, 0,
                 1, 2, 3
@@ -116,6 +116,38 @@ public class Lathe : MonoBehaviour
 
             Renderer renderer = gameObject.GetComponent<MeshRenderer>();
             renderer.material = mat;
+        }
+
+        /// <summary>
+        /// Get a computed list of all vertices for a given number of segments on a circle with (0, 0, 0) as origin.
+        /// </summary>
+        /// <param name="vertex">The vertex on angle 0 from the spline.</param>
+        /// <param name="segments">The number of segments the lathed object should be generated</param>
+        /// <returns>A list of all vertices on a circle in the same height as the given vertex.</returns>
+        private List<Vector3> getVerticesOnCircle(Vector3 vertex, int segments)
+        {
+            float radius = Vector3.Distance(vertex, Vector3.up);
+            float segmentAngle = getAngleForNumberOfSections(segments);
+            Vector3 circleOrigin = new Vector3(0, vertex.y, 0);
+
+            List<Vector3> verticesOnCircle = new List<Vector3>{ vertex };
+
+            for (float angle = 0f; angle < 2 * Mathf.PI; angle += segmentAngle)
+            {
+                verticesOnCircle.Add(getPointOnCircle(angle, radius, circleOrigin));
+            }
+
+            return verticesOnCircle;
+        }
+
+        /// <summary>
+        /// Get the angle of a segment in radians.
+        /// </summary>
+        /// <param name="segments">The number of segments.</param>
+        /// <returns>The angle of a segment in radians.</returns>
+        private float getAngleForNumberOfSections(int segments)
+        {
+            return 2 * Mathf.PI / segments;
         }
 
         private void createPolygon(int[] splineSection, List<int> triangles)
@@ -157,10 +189,10 @@ public class Lathe : MonoBehaviour
             // default axis is the up vector
             if (rotationAxis == null)
             {
-                rotationAxis = Vector3.up;
+                rotationAxis = Vector3.up;    
             }
 
-            return Mathf.Sqrt(Mathf.Pow(vertex.x,2) + Mathf.Pow(vertex.z, 2));
+            return Vector3.Distance(vertex, rotationAxis.Value);
         }
 
         private float getRadiusOfSection(int sections)
