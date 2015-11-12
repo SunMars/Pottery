@@ -10,7 +10,7 @@ public class Lathe : MonoBehaviour
 {
     public Material material;
     public LathedObject lathedObject;
-    [Range(3, 64)]
+    [Range(3, 512)]
     public int sections;
 
     private Mesh mesh;
@@ -59,62 +59,18 @@ public class Lathe : MonoBehaviour
             List<List<Vector3>> verticesList2D = getLathedMeshVertices(spline, sections);
 
             this.mesh = mesh;
-            this.vertices = list2dToSimpleList(verticesList2D);
-            //this.uv = TODO;
-            this.triangles = getTriangleArray(verticesList2D);
+
+            vertices = list2dToSimpleList(verticesList2D);
+            //uv = TODO;
+            triangles = getTriangleArray(verticesList2D);
 
             createMesh();
         }
 
         /// <summary>
-        /// Standard constructor. (Only for testing)
+        /// Creates the mesh and assigns a material.
         /// </summary>
-        public LathedObject(GameObject gameObject, int sections, Material mat, Mesh mesh, MeshFilter meshFilter)
-        {
-            this.spline = new List<Vector3>
-            {
-                new Vector3(0, 0, 1),
-                new Vector3(0, 1, 2),
-                new Vector3(0, 2, 2),
-                new Vector3(0, 3, 2),
-                new Vector3(0, 4, 1),
-            };
-
-            // new LathedObject(spline, gameObject, sections, mat, mesh, meshFilter);
-
-            // -------------------------
-            this.vertices = new List<Vector3>
-            {
-                new Vector3(0, 0, 0),
-                new Vector3(0, 0, 1),
-                new Vector3(0, 1, 0),
-                new Vector3(0, 1, 1)
-            };
-
-            this.uv = new List<Vector2>
-            {
-                new Vector2(0, 0),
-                new Vector2(0, 0),
-                new Vector2(0, 1),
-                new Vector2(0, 1)
-            };
-
-            this.triangles = new int[]
-            {
-                2, 1, 0,
-                1, 2, 3
-            };
-
-            mesh.vertices = vertices.ToArray();
-            mesh.uv = uv.ToArray();
-            mesh.triangles = triangles;
-
-            Renderer renderer = gameObject.GetComponent<MeshRenderer>();
-            renderer.material = mat;
-        }
-
-        // TODO
-        private void createMesh()
+        private void createMesh() // TODO
         {
             mesh.vertices = vertices.ToArray();
             //mesh.uv = uv.ToArray();
@@ -122,6 +78,19 @@ public class Lathe : MonoBehaviour
 
             Renderer renderer = gameObject.GetComponent<MeshRenderer>();
             renderer.material = mat;
+            mesh.RecalculateNormals();
+        }
+
+        /// <summary>
+        /// Updates the mesh with 
+        /// </summary>
+        public void updateMesh(List<Vector3> spline)
+        {
+            this.spline = spline;
+            List<List<Vector3>> verticesList2D = getLathedMeshVertices(spline);
+            mesh.vertices = vertices.ToArray();
+            mesh.RecalculateBounds();
+            mesh.RecalculateNormals();
         }
 
         /// <summary>
@@ -131,22 +100,45 @@ public class Lathe : MonoBehaviour
         /// <returns>An array of the vertex indizes of the triangles.</returns>
         private int[] getTriangleArray(List<List<Vector3>> verticesList2D)
         {
-            // number of triangles = horizontal sections * vertical sections * triangles per polygon
-            int[] triangleArray = new int[sections * verticesList2D.Count * 2];
+            List<int> triangleArray = new List<int>();
 
-            for (int i = 0; i < spline.Count; i++)
+            // Does not work for some section values. E.g. 17, 23, 64
+            for (int i = 0; i < verticesList2D.Count - 1; i++)
             {
-                Vector3 firstVertex = verticesList2D[i][0];
-                // TODO add all triangles to the array
+                int vIndex = i * sections; // index of the "spline" vertex
+
+                for (int j = 0; j < sections; j++)
+                {
+                    int vertexIndex = vIndex + j; // Index of the vertex in the current row
+
+                    if (j != sections - 1) // if it's not the last polygon in row
+                    {
+                        // first triangle
+                        triangleArray.Add(vertexIndex);
+                        triangleArray.Add(vertexIndex + 1);
+                        triangleArray.Add(vertexIndex + 1 + sections);
+
+                        // second triangle
+                        triangleArray.Add(vertexIndex + 1 + sections);
+                        triangleArray.Add(vertexIndex + sections);
+                        triangleArray.Add(vertexIndex);
+                    }
+                    else
+                    {
+                        // first triangle
+                        triangleArray.Add(vertexIndex);
+                        triangleArray.Add(vIndex);
+                        triangleArray.Add(vIndex + sections);
+
+                        // second triangle
+                        triangleArray.Add(vIndex + sections);
+                        triangleArray.Add(vertexIndex + sections);
+                        triangleArray.Add(vertexIndex);
+                    }
+                }
             }
 
-            // TODO only for testing
-            triangleArray = new int[] {
-                0, 1, 1 + sections,
-                1 + sections, 0 + sections, 0
-            };
-
-            return triangleArray;
+            return triangleArray.ToArray();
         }
 
         /// <summary>
@@ -195,6 +187,21 @@ public class Lathe : MonoBehaviour
         }
 
         /// <summary>
+        /// Get all a 2D-list of all vertices for the generated lathed mesh, when the sections are already defined.
+        /// </summary>
+        /// <param name="spline">The spline from which the lathed object will be created.</param>
+        /// <returns>A 2D-list of all mesh vertices.
+        /// e.g.: <code>
+        /// [ [0, 1, 0],
+        ///   [0, 2, 1],
+        ///   [0, 3, 4], 
+        ///   [0, 4, 3] ]</code></returns>
+        private List<List<Vector3>> getLathedMeshVertices(List<Vector3> spline)
+        {
+            return getLathedMeshVertices(spline, sections);
+        }
+
+        /// <summary>
         /// Convert a 2D list into a one dimensional list. This is required for the mesh creation with the Mesh class.
         /// </summary>
         /// <param name="verticesList2d"></param>
@@ -219,38 +226,6 @@ public class Lathe : MonoBehaviour
         private float getAngleForNumberOfSections(int segments)
         {
             return 2 * Mathf.PI / segments;
-        }
-
-        // TODO not finished
-        private void createPolygon(int[] splineSection, List<int> triangles)
-        {
-            if (splineSection.Length != 2)
-            {
-                Debug.Log("createPolygon(): invalid length of spline section Vector");
-            }
-
-            createTriangle(splineSection[2], splineSection[1], splineSection[0], triangles);
-            createTriangle(splineSection[1], splineSection[2], splineSection[3], triangles);
-        }
-
-        // TODO not finished
-        private List<Vector3> createTrianglesForLathedMesh()
-        {
-            List<Vector3> triangleList = new List<Vector3>() { };
-
-            // TODO create all triangles
-
-            return triangleList;
-        }
-
-        // TODO not finished
-        private List<int> createTriangle(int a, int b, int c, List<int> triangles)
-        {
-            triangles.Add(a);
-            triangles.Add(b);
-            triangles.Add(c);
-
-            return triangles;
         }
 
         /// <summary>
@@ -333,15 +308,33 @@ public class Lathe : MonoBehaviour
             new Vector3(0, 1, 2),
             new Vector3(0, 2, 2),
             new Vector3(0, 3, 2),
-            new Vector3(0, 4, 1),
+            new Vector3(0, 4, 1)
         };
 
         lathedObject = new LathedObject(spline, gameObject, sections, material, mesh, meshFilter);
     }
 
+    // hier geht noch nix
     void Update()
     {
-        // redraw the mesh every frame
-        // lathedObject.draw();
+        List<Vector3> spline = new List<Vector3>
+        {
+            new Vector3(0, 0, minifier(1)),
+            new Vector3(0, 1, minifier(2)),
+            new Vector3(0, 2, minifier(2)),
+            new Vector3(0, 3, minifier(2)),
+            new Vector3(0, 4, minifier(1))
+        };
+
+        if (lathedObject != null)
+        {
+            lathedObject.updateMesh(spline);
+        }
+    }
+
+    // hier auch nicht
+    float minifier(int value)
+    {
+        return value - (Time.time / 10);
     }
 }
