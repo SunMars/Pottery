@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 /// <summary> 
 /// the spline class represents a Vector Array of Points that the spline is made out of
@@ -10,19 +11,22 @@ public class Spline {
 
     private Vector3[] spline;
 
-    ///<summary> constructs a straight spline </summary>
+    ///<summary> constructs a vertical spline with a slight variance </summary>
     ///
     ///<param name="radius">distance to the center</param>
     ///<param name="height">height of the spline</param>
     ///<param name="subdivision">subdivision of the spline </param>
-    public Spline(float radius, float height, int subdivision)
+    ///<param name="varianz">amount of variance in spline-line, default: 0.1f</param>
+    public Spline(float radius, float height, int subdivision, float varianz = 0.01f)
     {
         float distance = height / subdivision;
 
-        spline = new Vector3[subdivision +1];
-        for(int i = 0; i<=subdivision; i++)
+        spline = new Vector3[subdivision+2];
+        spline[0] = new Vector3(0f, 0f, 0f);
+        spline[spline.Length-1] = new Vector3(0f, height, 0f);
+        for (int i = 1; i<subdivision+1; i++)
         {
-            spline[i] = new Vector3(0f, i*distance, radius);
+            spline[i] = new Vector3(0f, i*distance, radius+ Random.Range(-varianz, varianz));
         }
     }
 

@@ -14,14 +14,26 @@ public class Lathe : MonoBehaviour
     public int sections;
 
     private Mesh mesh;
+    private List<Vector3> spline;
 
     /// <summary>
     /// Creates a lathed object, which will be added to the scene. The center of the object is the y-axis.
     /// </summary>
     /// <param name="spline">A spline, which will be used to create the lathed mesh.</param>
-    Lathe(List<Vector3> spline)
+    public Lathe(List<Vector3> spline)
     {
         MeshFilter meshFilter = GetComponent<MeshFilter>();
+        mesh = new Mesh();
+        meshFilter.mesh = mesh;
+
+        lathedObject = new LathedObject(spline, gameObject, sections, material, mesh, meshFilter);
+    }
+
+    public void init(List<Vector3> generatedSpline)
+    {
+        if (this.spline == null)
+            this.spline = generatedSpline;
+        MeshFilter meshFilter = this.GetComponent<MeshFilter>();
         mesh = new Mesh();
         meshFilter.mesh = mesh;
 
