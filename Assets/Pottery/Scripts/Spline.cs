@@ -8,6 +8,8 @@ using Random = UnityEngine.Random;
 /// the spline class represents a Vector Array of Points that the spline is made out of
 /// </summary>
 public class Spline {
+    public float pushthreshold;
+    public float pushFalloff;
 
     private Vector3[] spline;
 
@@ -79,12 +81,37 @@ public class Spline {
     /// </summary>
     /// <param name="point">point to deform</param>
     /// <param name="strength">strength of deformation(e.g. distance of hand in clay)</param>
-    internal void PushAtPosition(Vector3 point, float strength)
+    internal void PushAtPosition(Vector3 point, float strength, float pushFalloff, float pushThreshold)
     {
-        Debug.Log("PushAtPosition:\t------------------\nPushing clay at pos:" + spline[getCorrespondingVertex(point.y)].ToString() + "------------------\n");
-        spline[getCorrespondingVertex(point.y)].z *= 0.96f;
-        spline[getCorrespondingVertex(point.y)].z = Math.Max(spline[getCorrespondingVertex(point.y)].z, 0.1f);
-        Debug.Log("PushAtPosition:\t------------------\nPushing clay at pos:"+ spline[getCorrespondingVertex(point.y)].ToString()+ "------------------\n");
+        int affectedVertices = (int) Mathf.Floor(spline.Length * pushThreshold);
+        if (affectedVertices % 2 == 0)
+            affectedVertices += 1;
+        int startVertex = getCorrespondingVertex(point.y) - (affectedVertices - 1) / 2;
+        int endVertex = getCorrespondingVertex(point.y) + (affectedVertices - 1) / 2 ;
+
+        // generate list with normal-verteilung
+        float[] gaussList = new float[affectedVertices];
+        //center element is max
+        Debug.Log("all/center element: " + affectedVertices + "/" + ((int)Mathf.Floor(affectedVertices / 2) + 1));
+        gaussList[(int)Mathf.Floor(affectedVertices / 2) + 1] = 0.98f;
+        for (int i=0; i< (affectedVertices-1)/2; i++)
+        {
+            gaussList[i] = gaussList[(int)Mathf.Floor(affectedVertices / 2) + 1] +
+                (1- gaussList[(int)Mathf.Floor(affectedVertices / 2) + 1])*i/affectedVertices;
+            gaussList[affectedVertices -1 - i] = gaussList[i];
+        }
+
+        int j = 0;
+        for (int i= startVertex; i < endVertex; i++)
+        {
+            if (i < 0 || i >= spline.Length)
+                continue;
+            // values: strength, pushFalloff, 
+            spline[i].z *= gaussList[j];
+            j++;
+        }
+        spline[getCorrespondingVertex(point.y)].z = Mathf.Max(spline[getCorrespondingVertex(point.y)].z, 0.1f);
+        //Debug.Log("PushAtPosition:\tPushing clay at pos:"+ spline[getCorrespondingVertex(point.y)].ToString());
     }
 
     private int getCorrespondingVertex(float pointheight)

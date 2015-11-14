@@ -5,14 +5,18 @@ using System.Collections.Generic;
 using Leap;
 using System;
 
-public class PotteryManager : MonoBehaviour {
+public class PotteryManager : MonoBehaviour
+{
     public HandController leaphandController;
     public Lathe latheController;
+    public int handMovementScaling;
+    public int ClayResolution;
+    public float ClayHeight, ClayRadius, ClayVariance;
+    public float pushFalloff, pushThreshold;
+
     [Header("Debug")]
     public LineRenderer lineRenderer;
     public GameObject fingerTipSphere;
-    public int ClayResolution;
-    public float ClayHeight, ClayRadius, ClayVariance;
 
     private Spline spline;
     private Controller leapController;
@@ -35,17 +39,19 @@ public class PotteryManager : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
         m_leapController = new Controller();
         // initiate the Debug Spline 
         spline = new Spline(ClayRadius, ClayHeight, ClayResolution, ClayVariance);
         //latheController = new Lathe(spline.getSplineList(), true);
         latheController.init(spline.getSplineList());
-       
+
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update()
+    {
         Frame frame = m_leapController.Frame();
         Hand hand = frame.Hand(0);
 
@@ -55,15 +61,17 @@ public class PotteryManager : MonoBehaviour {
         //todo https://developer.leapmotion.com/documentation/csharp/devguide/Leap_Coordinate_Mapping.html
 
         //check if hands are found:
-        if (frame.Hands.Count > 0) {
+        if (frame.Hands.Count > 0)
+        {
             // Check if Hand touches clay
             Vector3 test = frame.Hands[0].PalmPosition.ToUnityScaled(false);
-           // test = leaphandController.transform.TransformPoint(hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false));
+            //test = leaphandController.transform.TransformPoint(hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false));
             Vector3 tipPosition = hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-            tipPosition = test;
+            tipPosition = test * handMovementScaling;
             float splineDistToPoint = spline.DistanceToPoint(tipPosition);
-            Debug.Log("PotteryManager:\t tipPosition: " + tipPosition.ToString());
-            Debug.Log("PotteryManager:\tDistance of spline to hand: "+ splineDistToPoint);
+            //Debug.Log("PotteryManager:\t tipPosition: " + tipPosition.ToString());
+            //Debug.Log("PotteryManager:\tDistance of spline to hand: " + splineDistToPoint);
+            fingerTipSphere.transform.position = tipPosition;
             if (splineDistToPoint <= 0)
             {
                 // get current gesture
@@ -72,7 +80,7 @@ public class PotteryManager : MonoBehaviour {
                     case GESTURE.PUSH:
                         {
                             //spline.PushAtPosition(fingers.Frontmost.StabilizedTipPosition.ToUnity(false), splineDistToPoint);
-                            spline.PushAtPosition(tipPosition, splineDistToPoint);
+                            spline.PushAtPosition(tipPosition, splineDistToPoint, pushFalloff, pushThreshold);
                         }
                         break;
 

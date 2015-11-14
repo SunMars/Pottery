@@ -165,8 +165,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 92380249}
-  m_LocalRotation: {x: .184780091, y: -.682536781, z: .184780136, w: .682536662}
-  m_LocalPosition: {x: 2.523, y: 2.04099989, z: -0}
+  m_LocalRotation: {x: .261318564, y: 0, z: 0, w: .965252638}
+  m_LocalPosition: {x: 0, y: 2.04099989, z: -2.523}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -249,11 +249,11 @@ Prefab:
     m_Modifications:
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -.200000003
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalPosition.z
@@ -265,7 +265,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalRotation.y
-      value: .70710659
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalRotation.z
@@ -273,7 +273,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalRotation.w
-      value: -.707106948
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_RootOrder
@@ -285,27 +285,27 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: handMovementScale.x
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: handMovementScale.y
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: handMovementScale.z
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalScale.x
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalScale.y
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalScale.z
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: leftGraphicsModel
@@ -337,7 +337,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -.100000001
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
       propertyPath: m_LocalPosition.z
@@ -385,7 +385,7 @@ Prefab:
       objectReference: {fileID: 2100000, guid: fe2e7a24bb9b7754d83b25bd3839abaa, type: 2}
     - target: {fileID: 100004, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
       propertyPath: m_IsActive
@@ -423,12 +423,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leaphandController: {fileID: 120162990}
   latheController: {fileID: 2033726155}
+  handMovementScaling: 3
+  ClayResolution: 300
+  ClayHeight: 1.5
+  ClayRadius: .400000006
+  ClayVariance: .00499999989
+  pushFalloff: .300000012
+  pushThreshold: .0500000007
   lineRenderer: {fileID: 578735031}
   fingerTipSphere: {fileID: 1513242490}
-  ClayResolution: 60
-  ClayHeight: 1.5
-  ClayRadius: .600000024
-  ClayVariance: .0299999993
 --- !u!4 &884631264
 Transform:
   m_ObjectHideFlags: 0
@@ -720,6 +723,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa7f6857784e70546afa96f53982877e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  revolutionsPerSecond: 0
 --- !u!1 &2033726151
 GameObject:
   m_ObjectHideFlags: 0
