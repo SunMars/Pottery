@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 /// <summary> 
 /// the spline class represents a Vector Array of Points that the spline is made out of
@@ -94,6 +95,33 @@ public class Spline {
             }
         }
         return vertexIndex;
+    }
+
+    /// <summary>
+    /// smoothes spline in the area around given position
+    /// </summary>
+    /// <param name="tipPosition"></param>
+    internal void SmoothAtPosition(Vector3 tipPosition)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// increses spline radius at given position
+    /// </summary>
+    /// <param name="tipPosition"></param>
+    internal void PullAtPosition(Vector3 tipPosition)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// returns array as List
+    /// </summary>
+    /// <returns></returns>
+    internal List<Vector3> getSplineList()
+    {
+        return new List<Vector3>(this.spline);
     }
 
     /// <summary>
