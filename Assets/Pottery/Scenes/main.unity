@@ -424,12 +424,12 @@ MonoBehaviour:
   leaphandController: {fileID: 120162990}
   latheController: {fileID: 2033726155}
   handMovementScaling: 3
-  ClayResolution: 300
+  ClayResolution: 60
   ClayHeight: 1.5
-  ClayRadius: .400000006
-  ClayVariance: .00499999989
+  ClayRadius: 1
+  ClayVariance: 0
   pushFalloff: .300000012
-  pushThreshold: .0500000007
+  pushThreshold: .400000006
   lineRenderer: {fileID: 578735031}
   fingerTipSphere: {fileID: 1513242490}
 --- !u!4 &884631264

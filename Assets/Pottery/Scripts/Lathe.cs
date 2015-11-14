@@ -106,7 +106,7 @@ public class Lathe : MonoBehaviour
 
             for (int i = 0; i < vertices.Count; i++)
             {
-                uv.Add(new Vector2(vertices[i].x, vertices[i].z));
+                //uv.Add(new Vector2(vertices[i].x, vertices[i].z));
             }
 
             return uvList;

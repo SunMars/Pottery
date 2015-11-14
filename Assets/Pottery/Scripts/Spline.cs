@@ -92,25 +92,35 @@ public class Spline {
         // generate list with normal-verteilung
         float[] gaussList = new float[affectedVertices];
         //center element is max
-        Debug.Log("all/center element: " + affectedVertices + "/" + ((int)Mathf.Floor(affectedVertices / 2) + 1));
-        gaussList[(int)Mathf.Floor(affectedVertices / 2) + 1] = 0.98f;
+        float maxDeform = 0.999f;
+        gaussList[(int)Mathf.Floor(affectedVertices / 2) + 1] = maxDeform;
+        String gaussvals = "GaussVals: ";
         for (int i=0; i< (affectedVertices-1)/2; i++)
         {
-            gaussList[i] = gaussList[(int)Mathf.Floor(affectedVertices / 2) + 1] +
-                (1- gaussList[(int)Mathf.Floor(affectedVertices / 2) + 1])*i/affectedVertices;
+            //sinus
+            gaussList[i] = maxDeform +
+                (1- maxDeform) * i/affectedVertices;
             gaussList[affectedVertices -1 - i] = gaussList[i];
         }
-
+        for (int i = 0; i < gaussList.Length; i++)
+        {
+            gaussvals += gaussList[i] + "; ";
+        }
+        Debug.Log(gaussvals);
         int j = 0;
         for (int i= startVertex; i < endVertex; i++)
         {
             if (i < 0 || i >= spline.Length)
+            {
+                j++;
                 continue;
+            }
             // values: strength, pushFalloff, 
+            //i-startvertex
             spline[i].z *= gaussList[j];
             j++;
         }
-        spline[getCorrespondingVertex(point.y)].z = Mathf.Max(spline[getCorrespondingVertex(point.y)].z, 0.1f);
+        //spline[getCorrespondingVertex(point.y)].z = Mathf.Max(spline[getCorrespondingVertex(point.y)].z, 0.1f);
         //Debug.Log("PushAtPosition:\tPushing clay at pos:"+ spline[getCorrespondingVertex(point.y)].ToString());
     }
 
