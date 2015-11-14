@@ -9,17 +9,39 @@ using System.Collections.Generic;
 public class Lathe : MonoBehaviour
 {
     public Material material;
-    public LathedObject lathedObject;
+    protected LathedObject lathedObject;
     [Range(3, 512)]
     public int sections;
 
     private Mesh mesh;
 
+    /// <summary>
+    /// Creates a lathed object, which will be added to the scene. The center of the object is the y-axis.
+    /// </summary>
+    /// <param name="spline">A spline, which will be used to create the lathed mesh.</param>
+    Lathe(List<Vector3> spline)
+    {
+        MeshFilter meshFilter = GetComponent<MeshFilter>();
+        mesh = new Mesh();
+        meshFilter.mesh = mesh;
+
+        lathedObject = new LathedObject(spline, gameObject, sections, material, mesh, meshFilter);
+    }
+
+    /// <summary>
+    /// Updates the mesh with new coordinates from a spline.
+    /// </summary>
+    /// <param name="spline">The new spline, which will be used to update the lathed mesh.</param>
+    public void updateMesh(List<Vector3> spline)
+    {
+        mesh.vertices = spline.ToArray();
+        mesh.RecalculateBounds();
+    }
 
     /// <summary>
     /// This class represents a lathed object created from a spline.
     /// </summary>
-    public class LathedObject
+    protected class LathedObject
     {
         //////////////////////////////
         // constants -----------------
@@ -82,8 +104,9 @@ public class Lathe : MonoBehaviour
         }
 
         /// <summary>
-        /// Updates the mesh with 
+        /// Updates the mesh with the given spline.
         /// </summary>
+        /// <param name="spline">The spline for lathing.</param>
         public void updateMesh(List<Vector3> spline)
         {
             this.spline = spline;
@@ -102,7 +125,7 @@ public class Lathe : MonoBehaviour
         {
             List<int> triangleArray = new List<int>();
 
-            // Does not work for some section values. E.g. 17, 23, 64
+            // TODO Does not work for some section values. E.g. 17, 23, 64
             for (int i = 0; i < verticesList2D.Count - 1; i++)
             {
                 int vIndex = i * sections; // index of the "spline" vertex
@@ -266,7 +289,7 @@ public class Lathe : MonoBehaviour
         }
 
         /// <summary>
-        /// 
+        /// Get the point on a circle for the given angle and radius.
         /// </summary>
         /// <param name="angle">The angle between the axis and the desired point from origin.</param>
         /// <param name="radius">The radius of the circle.</param>
@@ -275,15 +298,10 @@ public class Lathe : MonoBehaviour
         /// between the axis and the desired point from origin of the circle.</returns>
         private Vector3 getPointOnCircle(float angle, float radius, Vector3 origin)
         {
-            // x = cx + r * cos(a)
+            // x = cx + r * sin(a)
             // y = cy               | same height as the origin of the circle
-            // z = cz + r * sin(a)
+            // z = cz + r * cos(a)
             return new Vector3(origin.x + (radius * Mathf.Sin(angle)), origin.y, origin.z + (radius * Mathf.Cos(angle)));
-        }
-
-        internal void draw()
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -294,47 +312,5 @@ public class Lathe : MonoBehaviour
         {
             return "Lathed Object --------\nSections: " + sections + " | Vertices: " + vertices.ToArray().Length;
         }
-    }
-
-    void Start()
-    {
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
-        mesh = new Mesh();
-        meshFilter.mesh = mesh;
-
-        List<Vector3> spline = new List<Vector3>
-        {
-            new Vector3(0, 0, 1),
-            new Vector3(0, 1, 2),
-            new Vector3(0, 2, 2),
-            new Vector3(0, 3, 2),
-            new Vector3(0, 4, 1)
-        };
-
-        lathedObject = new LathedObject(spline, gameObject, sections, material, mesh, meshFilter);
-    }
-
-    // hier geht noch nix
-    void Update()
-    {
-        List<Vector3> spline = new List<Vector3>
-        {
-            new Vector3(0, 0, minifier(1)),
-            new Vector3(0, 1, minifier(2)),
-            new Vector3(0, 2, minifier(2)),
-            new Vector3(0, 3, minifier(2)),
-            new Vector3(0, 4, minifier(1))
-        };
-
-        if (lathedObject != null)
-        {
-            lathedObject.updateMesh(spline);
-        }
-    }
-
-    // hier auch nicht
-    float minifier(int value)
-    {
-        return value - (Time.time / 10);
     }
 }
