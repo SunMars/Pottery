@@ -11,6 +11,8 @@ public class PotteryManager : MonoBehaviour {
     [Header("Debug")]
     public LineRenderer lineRenderer;
     public GameObject fingerTipSphere;
+    public int ClayResolution;
+    public float ClayHeight, ClayRadius, ClayVariance;
 
     private Spline spline;
     private Controller leapController;
@@ -36,14 +38,10 @@ public class PotteryManager : MonoBehaviour {
     void Start () {
         m_leapController = new Controller();
         // initiate the Debug Spline 
-        spline = new Spline(0.6f, 1.5f, 15);
+        spline = new Spline(ClayRadius, ClayHeight, ClayResolution, ClayVariance);
         //latheController = new Lathe(spline.getSplineList(), true);
         latheController.init(spline.getSplineList());
-        lineRenderer.SetVertexCount(spline.getSize());
-        for(int i = 0; i <= spline.getSize()-1; i++)
-        {
-            lineRenderer.SetPosition(i, spline.getVertex(i));
-        }
+       
     }
 	
 	// Update is called once per frame
@@ -62,6 +60,7 @@ public class PotteryManager : MonoBehaviour {
             Vector3 test = frame.Hands[0].PalmPosition.ToUnityScaled(false);
            // test = leaphandController.transform.TransformPoint(hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false));
             Vector3 tipPosition = hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
+            tipPosition = test;
             float splineDistToPoint = spline.DistanceToPoint(tipPosition);
             Debug.Log("PotteryManager:\t tipPosition: " + tipPosition.ToString());
             Debug.Log("PotteryManager:\tDistance of spline to hand: "+ splineDistToPoint);
@@ -92,6 +91,7 @@ public class PotteryManager : MonoBehaviour {
                 }
 
                 List<Vector3> currentSpline = spline.getSplineList();
+                //todo spline neu rendern
                 latheController.updateMesh(currentSpline);
 
             }

@@ -16,8 +16,8 @@ public class Spline {
     ///<param name="radius">distance to the center</param>
     ///<param name="height">height of the spline</param>
     ///<param name="subdivision">subdivision of the spline </param>
-    ///<param name="varianz">amount of variance in spline-line, default: 0.1f</param>
-    public Spline(float radius, float height, int subdivision, float varianz = 0.01f)
+    ///<param name="variance">amount of variance in spline-line, default: 0.1f</param>
+    public Spline(float radius, float height, int subdivision, float variance = 0.01f)
     {
         float distance = height / subdivision;
 
@@ -26,7 +26,7 @@ public class Spline {
         spline[spline.Length-1] = new Vector3(0f, height, 0f);
         for (int i = 1; i<subdivision+1; i++)
         {
-            spline[i] = new Vector3(0f, i*distance, radius+ Random.Range(-varianz, varianz));
+            spline[i] = new Vector3(0f, i*distance, radius+ Random.Range(0, variance*2)-variance);
         }
     }
 
@@ -81,8 +81,10 @@ public class Spline {
     /// <param name="strength">strength of deformation(e.g. distance of hand in clay)</param>
     internal void PushAtPosition(Vector3 point, float strength)
     {
-        spline[getCorrespondingVertex(point.y)] *= 0.9f;
-        Debug.Log("PushAtPosition:\t pushing clay at pos:"+point.ToString());
+        Debug.Log("PushAtPosition:\t------------------\nPushing clay at pos:" + spline[getCorrespondingVertex(point.y)].ToString() + "------------------\n");
+        spline[getCorrespondingVertex(point.y)].z *= 0.96f;
+        spline[getCorrespondingVertex(point.y)].z = Math.Max(spline[getCorrespondingVertex(point.y)].z, 0.1f);
+        Debug.Log("PushAtPosition:\t------------------\nPushing clay at pos:"+ spline[getCorrespondingVertex(point.y)].ToString()+ "------------------\n");
     }
 
     private int getCorrespondingVertex(float pointheight)
@@ -90,8 +92,10 @@ public class Spline {
         int vertexIndex = 0;
         for (int i = 0; i < spline.Length; i++)
         {
-            if (spline[i].y < pointheight)
+            if (spline[i].y < pointheight) { 
+                vertexIndex = i;
                 continue;
+            }
             else
             { // first time higher than given point-> break
                 vertexIndex = i;
@@ -125,7 +129,8 @@ public class Spline {
     /// <returns></returns>
     internal List<Vector3> getSplineList()
     {
-        return new List<Vector3>(this.spline);
+        List<Vector3> tmp = new List<Vector3>(this.spline);
+        return tmp;
     }
 
     /// <summary>

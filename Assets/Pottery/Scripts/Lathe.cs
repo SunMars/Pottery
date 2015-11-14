@@ -122,6 +122,7 @@ public class Lathe : MonoBehaviour
         {
             this.spline = spline;
             List<List<Vector3>> verticesList2D = getLathedMeshVertices(spline);
+            vertices = list2dToSimpleList(verticesList2D);
             mesh.vertices = vertices.ToArray();
             mesh.RecalculateBounds();
             mesh.RecalculateNormals();
