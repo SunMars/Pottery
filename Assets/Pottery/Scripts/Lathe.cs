@@ -31,8 +31,8 @@ public class Lathe : MonoBehaviour
 
     public void init(List<Vector3> generatedSpline)
     {
-        if (this.spline == null)
-            this.spline = generatedSpline;
+        if (spline == null)
+            spline = generatedSpline;
         MeshFilter meshFilter = this.GetComponent<MeshFilter>();
         mesh = new Mesh();
         meshFilter.mesh = mesh;
@@ -93,20 +93,32 @@ public class Lathe : MonoBehaviour
 
             this.mesh = mesh;
 
-            vertices = list2dToSimpleList(verticesList2D);
-            //uv = TODO;
+            vertices = list2dToSimpleList(verticesList2D);   
+            uv = getUVList(vertices);
             triangles = getTriangleArray(verticesList2D);
 
             createMesh();
         }
 
+        private List<Vector2> getUVList(List<Vector3> vertices)
+        {
+            List<Vector2> uvList = new List<Vector2> { };
+
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                uv.Add(new Vector2(vertices[i].x, vertices[i].z));
+            }
+
+            return uvList;
+        }
+
         /// <summary>
         /// Creates the mesh and assigns a material.
         /// </summary>
-        private void createMesh() // TODO
+        private void createMesh()
         {
             mesh.vertices = vertices.ToArray();
-            //mesh.uv = uv.ToArray();
+            mesh.uv = uv.ToArray();
             mesh.triangles = triangles;
 
             Renderer renderer = gameObject.GetComponent<MeshRenderer>();
@@ -132,7 +144,7 @@ public class Lathe : MonoBehaviour
         /// This is where the magic happens. The function calculates the triangles for the lathed mesh from the generated vertices.
         /// </summary>
         /// <param name="verticesList2D">A 2D list of the vertices of the mesh.</param>
-        /// <returns>An array of the vertex indizes of the triangles.</returns>
+        /// <returns>An array of the vertex indexes of the triangles.</returns>
         private int[] getTriangleArray(List<List<Vector3>> verticesList2D)
         {
             List<int> triangleArray = new List<int>();
@@ -277,7 +289,7 @@ public class Lathe : MonoBehaviour
         /// Get the Radius for the given vertex to the given rotation axis.
         /// </summary>
         /// <param name="vertex">A vertex with x, y and z-coordinates of type <c>Vector3</c></param>
-        /// <param name="rotationAxis">(optional) A normalized <c>Vector3</c> with exaclty two 0 values(e.g. <c>Vector3(0, 1, 0)</c>)</param>
+        /// <param name="rotationAxis">(optional) A normalized <c>Vector3</c> with exactly two 0 values(e.g. <c>Vector3(0, 1, 0)</c>)</param>
         /// <returns>The distance from the vertex to the axis at 90 degrees</returns>
         private float getRadius(Vector3 vertex, Vector3? rotationAxis = null)
         {
@@ -310,9 +322,9 @@ public class Lathe : MonoBehaviour
         /// between the axis and the desired point from origin of the circle.</returns>
         private Vector3 getPointOnCircle(float angle, float radius, Vector3 origin)
         {
-            // x = cx + r * sin(a)
-            // y = cy               | same height as the origin of the circle
-            // z = cz + r * cos(a)
+            // x = c * x + r * sin(a)
+            // y = c * y               | same height as the origin of the circle
+            // z = c * z + r * cos(a)
             return new Vector3(origin.x + (radius * Mathf.Sin(angle)), origin.y, origin.z + (radius * Mathf.Cos(angle)));
         }
 
