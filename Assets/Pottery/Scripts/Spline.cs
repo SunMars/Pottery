@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 /// <summary> 
 /// the spline class represents a Vector Array of Points that the spline is made out of
@@ -50,6 +51,49 @@ public class Spline {
     public Vector3 getVertex(int index)
     {
         return spline[index];
+    }
+
+    /// <summary>
+    /// Checks, if given position in in spline
+    /// </summary>
+    /// <param name="point">point in scene</param>
+    /// <returns>distance between spline and given point\nDIST<0 means point is in spline\nDIST=0 means point is on spline\nDIST>0 means point is outside of spline</returns>
+    internal float DistanceToPoint(Vector3 point)
+    {
+        Debug.Log("DistanceToPoint:\tgot Point:"+point.ToString());
+        // get corresponding spline vertex
+        int vertexIndex = getCorrespondingVertex(point.y);
+
+        // compare vertex with given point
+        return Vector3.Distance(new Vector3(0f,point.y, 0f), point) - Vector3.Distance(new Vector3(0f, point.y, 0f), spline[vertexIndex]);
+
+    }
+
+    /// <summary>
+    /// deforms clay at given position
+    /// </summary>
+    /// <param name="point">point to deform</param>
+    /// <param name="strength">strength of deformation(e.g. distance of hand in clay)</param>
+    internal void PushAtPosition(Vector3 point, float strength)
+    {
+        spline[getCorrespondingVertex(point.y)] *= 0.9f;
+        Debug.Log("PushAtPosition:\t pushing clay at pos:"+point.ToString());
+    }
+
+    private int getCorrespondingVertex(float pointheight)
+    {
+        int vertexIndex = 0;
+        for (int i = 0; i < spline.Length; i++)
+        {
+            if (spline[i].y < pointheight)
+                continue;
+            else
+            { // first time higher than given point-> break
+                vertexIndex = i;
+                break;
+            }
+        }
+        return vertexIndex;
     }
 
     /// <summary>
