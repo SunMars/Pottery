@@ -46,8 +46,7 @@ public class Lathe : MonoBehaviour
     /// <param name="spline">The new spline, which will be used to update the lathed mesh.</param>
     public void updateMesh(List<Vector3> spline)
     {
-        mesh.vertices = spline.ToArray();
-        mesh.RecalculateBounds();
+        lathedObject.updateMesh(spline);
     }
 
     /// <summary>
