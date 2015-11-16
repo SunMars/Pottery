@@ -106,7 +106,9 @@ public class Lathe : MonoBehaviour
 
             for (int i = 0; i < vertices.Count; i++)
             {
-                //uv.Add(new Vector2(vertices[i].x, vertices[i].z));
+                // TODO determine the right function for the cylindrical coordinates
+                float rho = Mathf.Sqrt(Mathf.Pow(vertices[i].x, 2) * Mathf.Pow(vertices[i].z, 2)); 
+                uvList.Add(new Vector2(rho, vertices[i].y));
             }
 
             return uvList;
