@@ -47,7 +47,7 @@ public class Spline {
     /// <returns>returns an array of vector3 points</returns>
     public Vector3[] getSpline()
     {
-        return new Vector3[0];
+        return spline;
     }
 
     /// <summary>
