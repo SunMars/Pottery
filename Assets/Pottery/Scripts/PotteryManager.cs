@@ -53,8 +53,6 @@ public class PotteryManager : MonoBehaviour
     void Update()
     {
         Frame frame = m_leapController.Frame();
-        Hand hand = frame.Hand(0);
-
         // Debug.Log("PotteryManager:\tFrame:"+frame.Timestamp+","+
         //     "PalmPos:"+ leaphandController.transform.TransformPoint(frame.Hands[0].PalmPosition.ToUnityScaled(false)).ToString());
 
@@ -66,7 +64,7 @@ public class PotteryManager : MonoBehaviour
             // Check if Hand touches clay
             Vector3 test = frame.Hands[0].PalmPosition.ToUnityScaled(false);
             //test = leaphandController.transform.TransformPoint(hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false));
-            Vector3 tipPosition = hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
+            Vector3 tipPosition = frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
             tipPosition = test * handMovementScaling;
             float splineDistToPoint = spline.DistanceToPoint(tipPosition);
             //Debug.Log("PotteryManager:\t tipPosition: " + tipPosition.ToString());
@@ -75,7 +73,7 @@ public class PotteryManager : MonoBehaviour
             if (splineDistToPoint <= 0)
             {
                 // get current gesture
-                switch (getCurrentGesture(hand))
+                switch (getCurrentGesture(frame.Hands[0]))
                 {
                     case GESTURE.PUSH:
                         {
@@ -86,7 +84,7 @@ public class PotteryManager : MonoBehaviour
 
                     case GESTURE.PULL:
                         {
-                            spline.PullAtPosition(tipPosition);
+                            spline.PullAtPosition(tipPosition, pushThreshold);
                         }
                         break;
                     case GESTURE.SMOOTH:
@@ -108,8 +106,27 @@ public class PotteryManager : MonoBehaviour
 
     private GESTURE getCurrentGesture(Hand hand)
     {
-        //todo
-        // was macht hand.PinchStrength?
+        Vector3 indexTipPosition = handMovementScaling * hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
+        Vector3 thumbTipPosition = handMovementScaling * hand.Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
+        Vector3 palmPosition = handMovementScaling * hand.PalmPosition.ToUnityScaled(false);
+
+        Vector3 v1 = palmPosition - indexTipPosition;
+        Vector3 v2 = palmPosition - thumbTipPosition;
+        v1.Normalize();
+        v2.Normalize();
+        float dotValue = Vector3.Dot(v1, v2);
+        if (dotValue > 1.0f)
+            dotValue = 1.0f;
+        else if (dotValue < -1.0f)
+            dotValue = -1.0f;
+        //skalarprodukt
+        float angle = Mathf.Acos(dotValue / (v1.sqrMagnitude * v2.sqrMagnitude));
+
+        if (angle > 1.1f) {
+            Debug.Log("Pulling");
+            return GESTURE.PULL;
+        }
+        Debug.Log("Pushing");
         return GESTURE.PUSH;
     }
 

@@ -67,7 +67,7 @@ public class Spline {
     /// <returns>distance between spline and given point\nDIST<0 means point is in spline\nDIST=0 means point is on spline\nDIST>0 means point is outside of spline</returns>
     internal float DistanceToPoint(Vector3 point)
     {
-        Debug.Log("DistanceToPoint:\tgot Point:"+point.ToString());
+        //Debug.Log("DistanceToPoint:\tgot Point:"+point.ToString());
         // get corresponding spline vertex
         int vertexIndex = getCorrespondingVertex(point.y);
 
@@ -77,51 +77,44 @@ public class Spline {
     }
 
     /// <summary>
-    /// deforms clay at given position
+    /// pushes into clay at given position. affects nearby vertices as well
     /// </summary>
-    /// <param name="point">point to deform</param>
-    /// <param name="strength">strength of deformation(e.g. distance of hand in clay)</param>
+    /// <param name="point">point of maximum deformation</param>
+    /// <param name="strength">distance of hand to clayegde</param>
+    /// <param name="pushFalloff">(not used) how strongly nearby vertices are affected</param>
+    /// <param name="pushThreshold">how many vertices will be affected</param>
     internal void PushAtPosition(Vector3 point, float strength, float pushFalloff, float pushThreshold)
     {
-        int affectedVertices = (int) Mathf.Floor(spline.Length * pushThreshold);
+        float maxDeform = Mathf.Min(0.01f, Mathf.Abs(strength) / 20f);
+        maxDeform = Mathf.Max(0.0001f, maxDeform);
+
+        float affectedVertices = (int) Mathf.Floor(spline.Length * pushThreshold);
         if (affectedVertices % 2 == 0)
             affectedVertices += 1;
-        int startVertex = getCorrespondingVertex(point.y) - (affectedVertices - 1) / 2;
-        int endVertex = getCorrespondingVertex(point.y) + (affectedVertices - 1) / 2 ;
+        int startVertex = getCorrespondingVertex(point.y) - ((int)affectedVertices - 1) / 2;
+        int endVertex = getCorrespondingVertex(point.y) + ((int)affectedVertices - 1) / 2 ;
 
         // generate list with normal-verteilung
-        float[] gaussList = new float[affectedVertices];
-        //center element is max
-        float maxDeform = 0.999f;
-        gaussList[(int)Mathf.Floor(affectedVertices / 2) + 1] = maxDeform;
-        String gaussvals = "GaussVals: ";
+        float[] deformFactors = new float[(int)affectedVertices];
+
+        deformFactors[(int)Mathf.Floor(affectedVertices / 2) + 1] = maxDeform;
         for (int i=0; i< (affectedVertices-1)/2; i++)
         {
-            //sinus
-            gaussList[i] = maxDeform +
-                (1- maxDeform) * i/affectedVertices;
-            gaussList[affectedVertices -1 - i] = gaussList[i];
+            deformFactors[i] = Mathf.Sin(i / affectedVertices);
+            deformFactors[(int)affectedVertices -1 - i] = deformFactors[i];
         }
-        for (int i = 0; i < gaussList.Length; i++)
-        {
-            gaussvals += gaussList[i] + "; ";
-        }
-        Debug.Log(gaussvals);
-        int j = 0;
+        
         for (int i= startVertex; i < endVertex; i++)
         {
             if (i < 0 || i >= spline.Length)
             {
-                j++;
                 continue;
             }
             // values: strength, pushFalloff, 
-            //i-startvertex
-            spline[i].z *= gaussList[j];
-            j++;
+            //Debug.Log("Deform by: " + spline[i].z+" * "+maxDeform + " * " + deformFactors[i - startVertex]+" = "+ spline[i].z * maxDeform * deformFactors[i - startVertex]);
+            spline[i].z -= spline[i].z * maxDeform * deformFactors[i - startVertex];
+
         }
-        //spline[getCorrespondingVertex(point.y)].z = Mathf.Max(spline[getCorrespondingVertex(point.y)].z, 0.1f);
-        //Debug.Log("PushAtPosition:\tPushing clay at pos:"+ spline[getCorrespondingVertex(point.y)].ToString());
     }
 
     private int getCorrespondingVertex(float pointheight)
@@ -155,9 +148,36 @@ public class Spline {
     /// increses spline radius at given position
     /// </summary>
     /// <param name="tipPosition"></param>
-    internal void PullAtPosition(Vector3 tipPosition)
+    internal void PullAtPosition(Vector3 point, float pushThreshold)
     {
-        throw new NotImplementedException();
+        float maxDeform = 0.005f;
+        float affectedVertices = (int)Mathf.Floor(spline.Length * pushThreshold);
+        if (affectedVertices % 2 == 0)
+            affectedVertices += 1;
+        int startVertex = getCorrespondingVertex(point.y) - ((int)affectedVertices - 1) / 2;
+        int endVertex = getCorrespondingVertex(point.y) + ((int)affectedVertices - 1) / 2;
+
+        // generate list with normal-verteilung
+        float[] deformFactors = new float[(int)affectedVertices];
+
+        deformFactors[(int)Mathf.Floor(affectedVertices / 2) + 1] = maxDeform;
+        for (int i = 0; i < (affectedVertices - 1) / 2; i++)
+        {
+            deformFactors[i] = Mathf.Sin(i / affectedVertices);
+            deformFactors[(int)affectedVertices - 1 - i] = deformFactors[i];
+        }
+
+        for (int i = startVertex; i < endVertex; i++)
+        {
+            if (i < 0 || i >= spline.Length)
+            {
+                continue;
+            }
+            // values: strength, pushFalloff, 
+            //Debug.Log("Deform by: " + spline[i].z+" * "+maxDeform + " * " + deformFactors[i - startVertex]+" = "+ spline[i].z * maxDeform * deformFactors[i - startVertex]);
+            spline[i].z += spline[i].z * maxDeform * deformFactors[i - startVertex];
+
+        }
     }
 
     /// <summary>

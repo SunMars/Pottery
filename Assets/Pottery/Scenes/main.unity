@@ -426,7 +426,7 @@ MonoBehaviour:
   handMovementScaling: 3
   ClayResolution: 60
   ClayHeight: 1.5
-  ClayRadius: 1
+  ClayRadius: .600000024
   ClayVariance: 0
   pushFalloff: .300000012
   pushThreshold: .400000006
