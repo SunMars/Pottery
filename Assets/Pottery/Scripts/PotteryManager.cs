@@ -19,9 +19,6 @@ public class PotteryManager : MonoBehaviour
     public GameObject fingerTipSphere;
 
     private Spline spline;
-    private Controller leapController;
-    private LeapRecorder recorder;
-    private bool enableRecordPlayback = false;
     private Controller m_leapController;
 
     enum GESTURE
@@ -31,20 +28,14 @@ public class PotteryManager : MonoBehaviour
         SMOOTH
     }
 
-    /** Creates a new Leap Controller object. */
-    void Awake()
-    {
-        leapController = new Controller();
-        recorder = new LeapRecorder();
-    }
-
     // Use this for initialization
     void Start()
     {
         m_leapController = new Controller();
-        // initiate the Debug Spline 
+        // initiate the Spline 
         spline = new Spline(ClayRadius, ClayHeight, ClayResolution, ClayVariance);
-        //latheController = new Lathe(spline.getSplineList(), true);
+
+        // generate initial clay-object
         latheController.init(spline.getSplineList());
 
     }
@@ -53,31 +44,25 @@ public class PotteryManager : MonoBehaviour
     void Update()
     {
         Frame frame = m_leapController.Frame();
-        // Debug.Log("PotteryManager:\tFrame:"+frame.Timestamp+","+
-        //     "PalmPos:"+ leaphandController.transform.TransformPoint(frame.Hands[0].PalmPosition.ToUnityScaled(false)).ToString());
-
-        //todo https://developer.leapmotion.com/documentation/csharp/devguide/Leap_Coordinate_Mapping.html
 
         //check if hands are found:
         if (frame.Hands.Count > 0)
         {
             // Check if Hand touches clay
-            Vector3 test = frame.Hands[0].PalmPosition.ToUnityScaled(false);
-            //test = leaphandController.transform.TransformPoint(hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false));
             Vector3 tipPosition = frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-            tipPosition = test * handMovementScaling;
-            float splineDistToPoint = spline.DistanceToPoint(tipPosition);
-            //Debug.Log("PotteryManager:\t tipPosition: " + tipPosition.ToString());
-            //Debug.Log("PotteryManager:\tDistance of spline to hand: " + splineDistToPoint);
+            tipPosition *= handMovementScaling;
+            
+            // [Debug] moves white sphere to tip Position
             fingerTipSphere.transform.position = tipPosition;
+
+            float splineDistToPoint = spline.DistanceToPoint(tipPosition);
             if (splineDistToPoint <= 0)
             {
                 // get current gesture
-                switch (getCurrentGesture(frame.Hands[0]))
+                switch (getCurrentGesture(frame.Hands))
                 {
                     case GESTURE.PUSH:
                         {
-                            //spline.PushAtPosition(fingers.Frontmost.StabilizedTipPosition.ToUnity(false), splineDistToPoint);
                             spline.PushAtPosition(tipPosition, splineDistToPoint, pushFalloff, pushThreshold);
                         }
                         break;
@@ -89,26 +74,37 @@ public class PotteryManager : MonoBehaviour
                         break;
                     case GESTURE.SMOOTH:
                         {
-                            spline.SmoothAtPosition(tipPosition);
+                            spline.SmoothAtPosition(tipPosition, pushThreshold);
                         }
                         break;
                     default:
                         break;
                 }
 
+                //get List of deformed Spline
                 List<Vector3> currentSpline = spline.getSplineList();
-                //todo spline neu rendern
-                latheController.updateMesh(currentSpline);
 
+                //generate new Mesh
+                latheController.updateMesh(currentSpline);
             }
         }
     }
 
-    private GESTURE getCurrentGesture(Hand hand)
+    /// <summary>
+    /// Checks current Hand gesture
+    /// </summary>
+    /// <param name="hand"></param>
+    /// <returns>current Gesture: Pull,Push or Smooth</returns>
+    private GESTURE getCurrentGesture(HandList hands)
     {
-        Vector3 indexTipPosition = handMovementScaling * hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-        Vector3 thumbTipPosition = handMovementScaling * hand.Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
-        Vector3 palmPosition = handMovementScaling * hand.PalmPosition.ToUnityScaled(false);
+        if(hands.Count > 1)
+        {
+            return GESTURE.SMOOTH;
+        }
+        //calculate pinch-angle
+        Vector3 indexTipPosition = handMovementScaling * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
+        Vector3 thumbTipPosition = handMovementScaling * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
+        Vector3 palmPosition = handMovementScaling * hands[0].PalmPosition.ToUnityScaled(false);
 
         Vector3 v1 = palmPosition - indexTipPosition;
         Vector3 v2 = palmPosition - thumbTipPosition;
@@ -120,27 +116,16 @@ public class PotteryManager : MonoBehaviour
         else if (dotValue < -1.0f)
             dotValue = -1.0f;
         //skalarprodukt
+        //angle between thumb, indexfinger and Palm
         float angle = Mathf.Acos(dotValue / (v1.sqrMagnitude * v2.sqrMagnitude));
 
+        //if angle is bigger than 1.1-> hand is pinching
+        //1.1 is approximated value, possibly not best value for everyone
         if (angle > 1.1f) {
-            Debug.Log("Pulling");
             return GESTURE.PULL;
+        } else {
+            return GESTURE.PUSH;
         }
-        Debug.Log("Pushing");
-        return GESTURE.PUSH;
-    }
-
-    /**
-  * Returns the latest frame object.
-  *
-  * If the recorder object is playing a recording, then the frame is taken from the recording.
-  * Otherwise, the frame comes from the Leap Motion Controller itself.
-  */
-    public virtual Frame GetFrame()
-    {
-        if (enableRecordPlayback && (recorder.state == RecorderState.Playing || recorder.state == RecorderState.Paused))
-            return recorder.GetCurrentFrame();
-
-        return leapController.Frame();
+        
     }
 }

@@ -79,20 +79,20 @@ public class Spline {
     /// <summary>
     /// pushes into clay at given position. affects nearby vertices as well
     /// </summary>
-    /// <param name="point">point of maximum deformation</param>
+    /// <param name="position">point of maximum deformation</param>
     /// <param name="strength">distance of hand to clayegde</param>
     /// <param name="pushFalloff">(not used) how strongly nearby vertices are affected</param>
-    /// <param name="pushThreshold">how many vertices will be affected</param>
-    internal void PushAtPosition(Vector3 point, float strength, float pushFalloff, float pushThreshold)
+    /// <param name="affectedArea">Percantage of affectedVertices (1.0 = 100% of all vertices)</param>
+    internal void PushAtPosition(Vector3 position, float strength, float pushFalloff, float affectedArea)
     {
         float maxDeform = Mathf.Min(0.01f, Mathf.Abs(strength) / 20f);
         maxDeform = Mathf.Max(0.0001f, maxDeform);
 
-        float affectedVertices = (int) Mathf.Floor(spline.Length * pushThreshold);
+        float affectedVertices = (int) Mathf.Floor(spline.Length * affectedArea);
         if (affectedVertices % 2 == 0)
             affectedVertices += 1;
-        int startVertex = getCorrespondingVertex(point.y) - ((int)affectedVertices - 1) / 2;
-        int endVertex = getCorrespondingVertex(point.y) + ((int)affectedVertices - 1) / 2 ;
+        int startVertex = getCorrespondingVertex(position.y) - ((int)affectedVertices - 1) / 2;
+        int endVertex = getCorrespondingVertex(position.y) + ((int)affectedVertices - 1) / 2 ;
 
         // generate list with normal-verteilung
         float[] deformFactors = new float[(int)affectedVertices];
@@ -139,23 +139,52 @@ public class Spline {
     /// smoothes spline in the area around given position
     /// </summary>
     /// <param name="tipPosition"></param>
-    internal void SmoothAtPosition(Vector3 tipPosition)
+    /// <param name="affectedArea">Percantage of affectedVertices (1.0 = 100% of all vertices)</param>
+    internal void SmoothAtPosition(Vector3 position, float affectedArea)
     {
-        throw new NotImplementedException();
+        float affectedVertices = (int)Mathf.Floor(spline.Length * affectedArea);
+        if (affectedVertices % 2 == 0)
+            affectedVertices += 1;
+        int startVertex = getCorrespondingVertex(position.y) - ((int)affectedVertices - 1) / 2;
+        int endVertex = getCorrespondingVertex(position.y) + ((int)affectedVertices - 1) / 2;
+
+        float[] smoothprofile = new float[(int)affectedVertices];
+        smoothprofile[(int)Mathf.Floor(affectedVertices / 2) + 1] = 1f;
+        for (int i = 0; i < (affectedVertices - 1) / 2; i++)
+        {
+            smoothprofile[i] = Mathf.Sin(i / affectedVertices);
+            smoothprofile[(int)affectedVertices - 1 - i] = smoothprofile[i];
+        }
+        //accumulate surounding spline-vertices
+        float accuValues = 0;
+        float accuCount = 0;
+        for (int i = startVertex; i < endVertex; i++)
+        {
+            if (i < 0 || i >= spline.Length)
+            {
+                continue;
+            }
+            accuValues += spline[i].z* smoothprofile[i - startVertex];
+            accuCount += smoothprofile[i - startVertex];
+        }
+
+        //set new smoothed value
+        spline[getCorrespondingVertex(position.y)].z = accuValues / accuCount;
     }
 
     /// <summary>
     /// increses spline radius at given position
     /// </summary>
-    /// <param name="tipPosition"></param>
-    internal void PullAtPosition(Vector3 point, float pushThreshold)
+    /// <param name="position"> Point of maximal Pull</param>
+    /// <param name="affectedArea">Percantage of affectedVertices (1.0 = 100% of all vertices)</param>
+    internal void PullAtPosition(Vector3 position, float affectedArea)
     {
         float maxDeform = 0.005f;
-        float affectedVertices = (int)Mathf.Floor(spline.Length * pushThreshold);
+        float affectedVertices = (int)Mathf.Floor(spline.Length * affectedArea);
         if (affectedVertices % 2 == 0)
             affectedVertices += 1;
-        int startVertex = getCorrespondingVertex(point.y) - ((int)affectedVertices - 1) / 2;
-        int endVertex = getCorrespondingVertex(point.y) + ((int)affectedVertices - 1) / 2;
+        int startVertex = getCorrespondingVertex(position.y) - ((int)affectedVertices - 1) / 2;
+        int endVertex = getCorrespondingVertex(position.y) + ((int)affectedVertices - 1) / 2;
 
         // generate list with normal-verteilung
         float[] deformFactors = new float[(int)affectedVertices];
