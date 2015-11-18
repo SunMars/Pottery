@@ -12,7 +12,7 @@ public class PotteryManager : MonoBehaviour
     public int handMovementScaling;
     public int ClayResolution;
     public float ClayHeight, ClayRadius, ClayVariance;
-    public float pushFalloff, pushThreshold;
+    public float effectStrength, affectedArea;
 
     [Header("Debug")]
     public LineRenderer lineRenderer;
@@ -84,18 +84,18 @@ public class PotteryManager : MonoBehaviour
                             {
                                 case GESTURE.PUSH:
                                     {
-                                        spline.PushAtPosition(tipPosition, splineDistToPoint, pushFalloff, pushThreshold);
+                                        spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea);
                                     }
                                     break;
 
                                 case GESTURE.PULL:
                                     {
-                                        spline.PullAtPosition(tipPosition, pushThreshold);
+                                        spline.PullAtPosition(tipPosition, effectStrength, affectedArea);
                                     }
                                     break;
                                 case GESTURE.SMOOTH:
                                     {
-                                        spline.SmoothAtPosition(tipPosition, pushThreshold);
+                                        spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea);
                                     }
                                     break;
                                 default:
@@ -130,18 +130,18 @@ public class PotteryManager : MonoBehaviour
                         {
                             case TOOL.PUSHTOOL:
                                 {
-                                    spline.PushAtPosition(tipPosition, splineDistToPoint, pushFalloff, pushThreshold);
+                                    spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea);
                                 }
                                 break;
 
                             case TOOL.PULLTOOL:
                                 {
-                                    spline.PullAtPosition(tipPosition, pushThreshold);
+                                    spline.PullAtPosition(tipPosition, effectStrength, affectedArea);
                                 }
                                 break;
                             case TOOL.SMOOTHTOOL:
                                 {
-                                    spline.SmoothAtPosition(tipPosition, pushThreshold);
+                                    spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea);
                                 }
                                 break;
                         }

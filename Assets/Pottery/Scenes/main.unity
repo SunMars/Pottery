@@ -434,7 +434,7 @@ MonoBehaviour:
   ClayRadius: .600000024
   ClayVariance: .0199999996
   effectStrength: 1
-  effectArea: .200000003
+  affectedArea: .300000012
   lineRenderer: {fileID: 578735031}
   fingerTipSphere: {fileID: 1513242490}
 --- !u!4 &884631264
