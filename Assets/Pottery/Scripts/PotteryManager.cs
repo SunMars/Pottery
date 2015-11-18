@@ -12,7 +12,7 @@ public class PotteryManager : MonoBehaviour
     public int handMovementScaling;
     public int ClayResolution;
     public float ClayHeight, ClayRadius, ClayVariance;
-    public float pushFalloff, pushThreshold;
+    public float effectStrength, effectArea;
 
     [Header("Debug")]
     public LineRenderer lineRenderer;
@@ -53,7 +53,7 @@ public class PotteryManager : MonoBehaviour
             tipPosition *= handMovementScaling;
             
             // [Debug] moves white sphere to tip Position
-            fingerTipSphere.transform.position = tipPosition;
+            fingerTipSphere.transform.position = tipPosition - new Vector3(0f,0.2f,0f);
 
             float splineDistToPoint = spline.DistanceToPoint(tipPosition);
             if (splineDistToPoint <= 0)
@@ -63,18 +63,18 @@ public class PotteryManager : MonoBehaviour
                 {
                     case GESTURE.PUSH:
                         {
-                            spline.PushAtPosition(tipPosition, splineDistToPoint, pushFalloff, pushThreshold);
+                            spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, effectArea);
                         }
                         break;
 
                     case GESTURE.PULL:
                         {
-                            spline.PullAtPosition(tipPosition, pushThreshold);
+                            spline.PullAtPosition(tipPosition, effectStrength, effectArea);
                         }
                         break;
                     case GESTURE.SMOOTH:
                         {
-                            spline.SmoothAtPosition(tipPosition, pushThreshold);
+                            spline.SmoothAtPosition(tipPosition, effectStrength, effectArea);
                         }
                         break;
                     default:

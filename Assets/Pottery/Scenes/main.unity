@@ -427,9 +427,9 @@ MonoBehaviour:
   ClayResolution: 60
   ClayHeight: 1.5
   ClayRadius: .600000024
-  ClayVariance: 0
-  pushFalloff: .300000012
-  pushThreshold: .400000006
+  ClayVariance: .0199999996
+  effectStrength: 1
+  effectArea: .200000003
   lineRenderer: {fileID: 578735031}
   fingerTipSphere: {fileID: 1513242490}
 --- !u!4 &884631264
