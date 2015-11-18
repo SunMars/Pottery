@@ -127,6 +127,40 @@ public class Spline
         }
     }
 
+    internal void PushAtPosition2(Vector3 position, float effectStrength, float affectedArea, Func<float, float> deformFunc)
+    {
+        float maxDeform = Mathf.Min(0.01f, Mathf.Abs(effectStrength) / 20f);
+        maxDeform = Mathf.Max(0.0001f, maxDeform);
+
+        float affectedVertices = (int)Mathf.Floor(spline.Length * affectedArea);
+        if (affectedVertices % 2 == 0)
+            affectedVertices += 1;
+        int startVertex = getCorrespondingVertex(position.y) - ((int)affectedVertices - 1) / 2;
+        int endVertex = getCorrespondingVertex(position.y) + ((int)affectedVertices - 1) / 2;
+
+        // generate list with normal-verteilung
+        float[] deformFactors = new float[(int)affectedVertices];
+
+        deformFactors[(int)Mathf.Floor(affectedVertices / 2) + 1] = maxDeform;
+        for (int i = 0; i < (affectedVertices - 1) / 2; i++)
+        {
+            deformFactors[i] = deformFunc(i / affectedVertices) * effectStrength;
+            deformFactors[(int)affectedVertices - 1 - i] = deformFactors[i];
+        }
+
+        for (int i = startVertex; i < endVertex; i++)
+        {
+            if (i < 0 || i >= spline.Length)
+            {
+                continue;
+            }
+            // values: strength, pushFalloff, 
+            //Debug.Log("Deform by: " + spline[i].z+" * "+maxDeform + " * " + deformFactors[i - startVertex]+" = "+ spline[i].z * maxDeform * deformFactors[i - startVertex]);
+            spline[i].z -= spline[i].z * maxDeform * deformFactors[i - startVertex];
+
+        }
+    }
+
     /// <summary>
     /// smoothes spline in the area around given position
     /// </summary>

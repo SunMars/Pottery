@@ -21,21 +21,22 @@ public class PotteryManager : MonoBehaviour
     private Spline spline;
     private Controller m_leapController;
 
+    
+    private TOOL currentTool;
+
     enum MODUS
     {
         HANDMODUS,
-        TOOLMODUS
+        TOOLMODUS,
+        HUDMODUS
     }
-    private MODUS currentModus;
-
     enum TOOL
     {
         PUSHTOOL,
         PULLTOOL,
-        SMOOTHTOOL
+        SMOOTHTOOL,
+        PUSHTOOL2
     }
-    private TOOL currentTool;
-
     enum GESTURE
     {
         PUSH,
@@ -52,8 +53,7 @@ public class PotteryManager : MonoBehaviour
 
         // generate initial clay-object
         latheController.init(spline.getSplineList());
-        currentModus = MODUS.HANDMODUS;
-        currentTool = TOOL.PUSHTOOL;
+        currentTool = TOOL.PULLTOOL;
 
     }
 
@@ -61,52 +61,48 @@ public class PotteryManager : MonoBehaviour
     void Update()
     {
         Frame frame = m_leapController.Frame();
-        switch (currentModus)
+        //check if hands are found:
+
+        switch (checkIntend())
         {
             case MODUS.HANDMODUS:
                 {
-                    //check if hands are found:
-                    if (frame.Hands.Count > 0)
+                    // Check if Hand touches clay
+                    Vector3 tipPosition = frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
+                    tipPosition *= handMovementScaling;
+                    tipPosition += new Vector3(0f, -0.2f, 0f);
+
+                    // [Debug] moves white sphere to tip Position
+                    fingerTipSphere.transform.position = tipPosition;
+
+                    float splineDistToPoint = spline.DistanceToPoint(tipPosition);
+
+                    if (splineDistToPoint <= 0)
                     {
-                        // Check if Hand touches clay
-                        Vector3 tipPosition = frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-                        tipPosition *= handMovementScaling;
-
-                        // [Debug] moves white sphere to tip Position
-                        fingerTipSphere.transform.position = tipPosition;
-
-                        float splineDistToPoint = spline.DistanceToPoint(tipPosition);
-                        
-                        if (splineDistToPoint <= 0)
+                        // get current gesture
+                        switch (getCurrentGesture(frame.Hands))
                         {
-                            // get current gesture
-                            switch (getCurrentGesture(frame.Hands))
-                            {
-                                case GESTURE.PUSH:
-                                    {
-                                        spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea);
-                                    }
-                                    break;
+                            case GESTURE.PUSH:
+                                {
+                                    spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea);
+                                    //(tipPosition, effectStrength, effectYHeight,delegate (float input) { return 1f; })
+                                }
+                                break;
 
-                                case GESTURE.PULL:
-                                    {
-                                        spline.PullAtPosition(tipPosition, effectStrength, affectedArea);
-                                    }
-                                    break;
-                                case GESTURE.SMOOTH:
-                                    {
-                                        spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea);
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            //get List of deformed Spline
-                            List<Vector3> currentSpline = spline.getSplineList();
-
-                            //generate new Mesh
-                            latheController.updateMesh(currentSpline);
+                            case GESTURE.PULL:
+                                {
+                                    spline.PullAtPosition(tipPosition, effectStrength, affectedArea);
+                                    //(tipPosition, effectStrength, effectYHeight,delegate (float input) { return 1f; });
+                                }
+                                break;
+                            case GESTURE.SMOOTH:
+                                {
+                                    spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea);
+                                    //(tipPosition, effectStrength, effectYHeight,delegate (float input) { return 1f; })
+                                }
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -117,15 +113,15 @@ public class PotteryManager : MonoBehaviour
                     //Get TipPosition of the Tool
                     Vector3 tipPosition = frame.Tools[0].TipPosition.ToUnityScaled(false);
                     tipPosition *= handMovementScaling;
-                    tipPosition += new Vector3(0f,-0.2f,0f);
+                    tipPosition += new Vector3(0f, -0.2f, 0f); //Spherefix
                     // [Debug] moves white sphere to tip Position
                     fingerTipSphere.transform.position = tipPosition;
 
                     float splineDistToPoint = spline.DistanceToPoint(tipPosition);
-                    Debug.Log("Distance: " + splineDistToPoint);
+                    //Debug.Log("Distance: " + splineDistToPoint);
                     if (splineDistToPoint <= 0)
                     {
-                        Debug.Log("Deforming Spline with: " + currentTool);
+                        //Debug.Log("Deforming Spline with: " + currentTool);
                         switch (currentTool)
                         {
                             case TOOL.PUSHTOOL:
@@ -133,7 +129,11 @@ public class PotteryManager : MonoBehaviour
                                     spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea);
                                 }
                                 break;
-
+                            case TOOL.PUSHTOOL2:
+                                {
+                                    spline.PushAtPosition2(tipPosition, effectStrength, affectedArea, delegate (float input) { return 1f; });
+                                }
+                                break;
                             case TOOL.PULLTOOL:
                                 {
                                     spline.PullAtPosition(tipPosition, effectStrength, affectedArea);
@@ -145,17 +145,25 @@ public class PotteryManager : MonoBehaviour
                                 }
                                 break;
                         }
-                        //get List of deformed Spline
-                        List<Vector3> currentSpline = spline.getSplineList();
-
-                        //generate new Mesh
-                        latheController.updateMesh(currentSpline);
                     }
                 }
                 break;
-          }
-           
+            default:
+                return;
+        }
+
+        //get List of deformed Spline
+        List<Vector3> currentSpline = spline.getSplineList();
+
+        //generate new Mesh
+        latheController.updateMesh(currentSpline);
     }
+
+    private MODUS checkIntend()
+    {
+        return MODUS.TOOLMODUS;
+    }
+
 
     /// <summary>
     /// Checks current Hand gesture
