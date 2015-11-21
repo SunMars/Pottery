@@ -7,7 +7,7 @@ using System.Collections;
 /// attach script to the object you want to move
 /// </summary>
 public class LeapSimulation : MonoBehaviour {
-    private int scaling = 150;
+    private int scaling = 50;
     float currentdepth;
 	// Use this for initialization
 	void Start () {
