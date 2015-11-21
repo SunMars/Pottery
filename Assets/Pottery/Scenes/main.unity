@@ -165,12 +165,12 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 92380249}
-  m_LocalRotation: {x: .261318564, y: 0, z: 0, w: .965252638}
-  m_LocalPosition: {x: 0, y: 2.04099989, z: -2.523}
+  m_LocalRotation: {x: .122276932, y: 0, z: 0, w: .992496014}
+  m_LocalPosition: {x: 0, y: 1.16999996, z: -2.20000005}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
 --- !u!114 &120162990 stripped
 MonoBehaviour:
   m_PrefabParentObject: {fileID: 11400000, guid: c9f2277f2b4414ff9abf05e783890171,
@@ -245,7 +245,7 @@ Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 884631264}
     m_Modifications:
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalPosition.x
@@ -257,7 +257,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -.5
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalRotation.x
@@ -297,15 +297,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalScale.x
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalScale.y
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalScale.z
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: leftGraphicsModel
@@ -334,7 +334,7 @@ Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 884631264}
     m_Modifications:
     - target: {fileID: 400004, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -366,7 +366,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2300002, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -428,7 +428,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leaphandController: {fileID: 120162990}
   latheController: {fileID: 2033726155}
-  handMovementScaling: 3
+  handController: {fileID: 1532430490}
+  handMovementScaling: 4
   ClayResolution: 60
   ClayHeight: 1.5
   ClayRadius: .600000024
@@ -450,8 +451,10 @@ Transform:
   - {fileID: 578735032}
   - {fileID: 1513242491}
   - {fileID: 2033726152}
+  - {fileID: 1532430490}
+  - {fileID: 1604595892}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 2
 --- !u!1 &953432065
 GameObject:
   m_ObjectHideFlags: 0
@@ -511,7 +514,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
 --- !u!43 &1245369141
 Mesh:
   m_ObjectHideFlags: 0
@@ -713,9 +716,17 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1513242490}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1532430490 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
+  m_PrefabInternal: {fileID: 707930047}
 --- !u!1 &1604595891 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 100004, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
+  m_PrefabInternal: {fileID: 828119540}
+--- !u!4 &1604595892 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 400004, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
   m_PrefabInternal: {fileID: 828119540}
 --- !u!114 &1604595894
 MonoBehaviour:

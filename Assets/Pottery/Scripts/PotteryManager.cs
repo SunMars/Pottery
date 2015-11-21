@@ -9,7 +9,7 @@ public class PotteryManager : MonoBehaviour
 {
     public HandController leaphandController;
     public Lathe latheController;
-    public int handMovementScaling;
+    public Transform handController;
     public int ClayResolution;
     public float ClayHeight, ClayRadius, ClayVariance;
     public float effectStrength, affectedArea;
@@ -20,6 +20,7 @@ public class PotteryManager : MonoBehaviour
 
     private Spline spline;
     private Controller m_leapController;
+    private float affectedHeight; //difference of thumb and index finger
 
     
     private TOOL currentTool;
@@ -69,8 +70,8 @@ public class PotteryManager : MonoBehaviour
                 {
                     // Check if Hand touches clay
                     Vector3 tipPosition = frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-                    tipPosition *= handMovementScaling;
-                    tipPosition += new Vector3(0f, -0.2f, 0f);
+                    tipPosition *= handController.localScale.x; 
+                    tipPosition += handController.position; 
 
                     // [Debug] moves white sphere to tip Position
                     fingerTipSphere.transform.position = tipPosition;
@@ -84,15 +85,13 @@ public class PotteryManager : MonoBehaviour
                         {
                             case GESTURE.PUSH:
                                 {
-                                    spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea);
-                                    //(tipPosition, effectStrength, effectYHeight,delegate (float input) { return 1f; })
+                                    spline.PushAtPosition(tipPosition, effectStrength, affectedHeight, 0f, delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); });
                                 }
                                 break;
 
                             case GESTURE.PULL:
                                 {
-                                    spline.PullAtPosition(tipPosition, effectStrength, affectedArea);
-                                    //(tipPosition, effectStrength, effectYHeight,delegate (float input) { return 1f; });
+                                    spline.PullAtPosition(tipPosition-new Vector3(0f,affectedHeight/2, 0f), effectStrength, affectedHeight, 0f, delegate (float input) { return Mathf.Pow(Mathf.Sin(input),1f); });
                                 }
                                 break;
                             case GESTURE.SMOOTH:
@@ -112,8 +111,8 @@ public class PotteryManager : MonoBehaviour
                 {
                     //Get TipPosition of the Tool
                     Vector3 tipPosition = frame.Tools[0].TipPosition.ToUnityScaled(false);
-                    tipPosition *= handMovementScaling;
-                    tipPosition += new Vector3(0f, -0.2f, 0f); //Spherefix
+                    tipPosition *= handController.localScale.x; 
+                    tipPosition += handController.position; 
                     // [Debug] moves white sphere to tip Position
                     fingerTipSphere.transform.position = tipPosition;
 
@@ -126,22 +125,17 @@ public class PotteryManager : MonoBehaviour
                         {
                             case TOOL.PUSHTOOL:
                                 {
-                                    spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea);
-                                }
-                                break;
-                            case TOOL.PUSHTOOL2:
-                                {
-                                    spline.PushAtPosition2(tipPosition, effectStrength, affectedArea, delegate (float input) { return 1f; });
+                                    //spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedHeight, delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 1f); });
                                 }
                                 break;
                             case TOOL.PULLTOOL:
                                 {
-                                    spline.PullAtPosition(tipPosition, effectStrength, affectedArea);
+                                    //spline.PullAtPosition(tipPosition, effectStrength, affectedArea, delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 1f); });
                                 }
                                 break;
                             case TOOL.SMOOTHTOOL:
                                 {
-                                    spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea);
+                                    //spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea);
                                 }
                                 break;
                         }
@@ -161,7 +155,7 @@ public class PotteryManager : MonoBehaviour
 
     private MODUS checkIntend()
     {
-        return MODUS.TOOLMODUS;
+        return MODUS.HANDMODUS;
     }
 
 
@@ -177,9 +171,9 @@ public class PotteryManager : MonoBehaviour
             return GESTURE.SMOOTH;
         }
         //calculate pinch-angle
-        Vector3 indexTipPosition = handMovementScaling * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-        Vector3 thumbTipPosition = handMovementScaling * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
-        Vector3 palmPosition = handMovementScaling * hands[0].PalmPosition.ToUnityScaled(false);
+        Vector3 indexTipPosition = handController.localScale.x * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
+        Vector3 thumbTipPosition = handController.localScale.x * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
+        Vector3 palmPosition = handController.localScale.x * hands[0].PalmPosition.ToUnityScaled(false);
 
         Vector3 v1 = palmPosition - indexTipPosition;
         Vector3 v2 = palmPosition - thumbTipPosition;
@@ -197,8 +191,10 @@ public class PotteryManager : MonoBehaviour
         //if angle is bigger than 1.1-> hand is pinching
         //1.1 is approximated value, possibly not best value for everyone
         if (angle > 1.1f) {
+            affectedHeight = Vector3.Distance(indexTipPosition, thumbTipPosition);
             return GESTURE.PULL;
         } else {
+            affectedHeight = 0.2f;
             return GESTURE.PUSH;
         }
         
