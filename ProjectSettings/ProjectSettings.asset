@@ -10,8 +10,8 @@ PlayerSettings:
   targetResolution: 0
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
-  productName: pottery
+  companyName: Virality
+  productName: Pottery
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_ShowUnitySplashScreen: 1
@@ -160,7 +160,13 @@ PlayerSettings:
     banner: {fileID: 0}
   androidGamepadSupportLevel: 0
   resolutionDialogBanner: {fileID: 0}
-  m_BuildTargetIcons: []
+  m_BuildTargetIcons:
+  - m_BuildTarget: 
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 0dc3c011a282c354cb1a4b452ced5c3f, type: 3}
+      m_Width: 128
+      m_Height: 128
   m_BuildTargetBatching: []
   m_BuildTargetGraphicsAPIs: []
   webPlayerTemplate: APPLICATION:Default
@@ -316,63 +322,78 @@ PlayerSettings:
   metroPackageLogo140: 
   metroPackageLogo180: 
   metroPackageLogo240: 
-  metroPackageVersion: 
+  metroPackageVersion: 1.0.0.0
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: pottery
-  metroStoreTileLogo80: 
-  metroStoreTileLogo: 
-  metroStoreTileLogo140: 
-  metroStoreTileLogo180: 
+  metroApplicationDescription: Pottery with Leap Motion
+  metroStoreTileLogo80: Assets/Pottery/Icons/AppLogo/app_logo_120px.png
+  metroStoreTileLogo: Assets/Pottery/Icons/AppLogo/app_logo_150px.png
+  metroStoreTileLogo140: Assets/Pottery/Icons/AppLogo/app_logo_210px.png
+  metroStoreTileLogo180: Assets/Pottery/Icons/AppLogo/app_logo_270px.png
   metroStoreTileWideLogo80: 
   metroStoreTileWideLogo: 
   metroStoreTileWideLogo140: 
   metroStoreTileWideLogo180: 
-  metroStoreTileSmallLogo80: 
-  metroStoreTileSmallLogo: 
-  metroStoreTileSmallLogo140: 
-  metroStoreTileSmallLogo180: 
-  metroStoreSmallTile80: 
-  metroStoreSmallTile: 
-  metroStoreSmallTile140: 
-  metroStoreSmallTile180: 
-  metroStoreLargeTile80: 
-  metroStoreLargeTile: 
-  metroStoreLargeTile140: 
-  metroStoreLargeTile180: 
+  metroStoreTileSmallLogo80: Assets/Pottery/Icons/AppLogo/app_logo_24px.png
+  metroStoreTileSmallLogo: Assets/Pottery/Icons/AppLogo/app_logo_30px.png
+  metroStoreTileSmallLogo140: Assets/Pottery/Icons/AppLogo/app_logo_42px.png
+  metroStoreTileSmallLogo180: Assets/Pottery/Icons/AppLogo/app_logo_54px.png
+  metroStoreSmallTile80: Assets/Pottery/Icons/AppLogo/app_logo_56px.png
+  metroStoreSmallTile: Assets/Pottery/Icons/AppLogo/app_logo_70px.png
+  metroStoreSmallTile140: Assets/Pottery/Icons/AppLogo/app_logo_98px.png
+  metroStoreSmallTile180: Assets/Pottery/Icons/AppLogo/app_logo_126px.png
+  metroStoreLargeTile80: Assets/Pottery/Icons/AppLogo/app_logo_248px.png
+  metroStoreLargeTile: Assets/Pottery/Icons/AppLogo/app_logo_310px.png
+  metroStoreLargeTile140: Assets/Pottery/Icons/AppLogo/app_logo_434px.png
+  metroStoreLargeTile180: Assets/Pottery/Icons/AppLogo/app_logo_558px.png
   metroStoreSplashScreenImage: 
   metroStoreSplashScreenImage140: 
   metroStoreSplashScreenImage180: 
-  metroPhoneAppIcon: 
-  metroPhoneAppIcon140: 
-  metroPhoneAppIcon240: 
-  metroPhoneSmallTile: 
-  metroPhoneSmallTile140: 
-  metroPhoneSmallTile240: 
-  metroPhoneMediumTile: 
-  metroPhoneMediumTile140: 
-  metroPhoneMediumTile240: 
+  metroPhoneAppIcon: Assets/Pottery/Icons/AppLogo/app_logo_44px.png
+  metroPhoneAppIcon140: Assets/Pottery/Icons/AppLogo/app_logo_62px.png
+  metroPhoneAppIcon240: Assets/Pottery/Icons/AppLogo/app_logo_106px.png
+  metroPhoneSmallTile: Assets/Pottery/Icons/AppLogo/app_logo_71px.png
+  metroPhoneSmallTile140: Assets/Pottery/Icons/AppLogo/app_logo_99px.png
+  metroPhoneSmallTile240: Assets/Pottery/Icons/AppLogo/app_logo_170px.png
+  metroPhoneMediumTile: Assets/Pottery/Icons/AppLogo/app_logo_150px.png
+  metroPhoneMediumTile140: Assets/Pottery/Icons/AppLogo/app_logo_210px.png
+  metroPhoneMediumTile240: Assets/Pottery/Icons/AppLogo/app_logo_360px.png
   metroPhoneWideTile: 
   metroPhoneWideTile140: 
   metroPhoneWideTile240: 
   metroPhoneSplashScreenImage: 
   metroPhoneSplashScreenImage140: 
   metroPhoneSplashScreenImage240: 
-  metroTileShortName: 
+  metroTileShortName: Pottery
   metroCommandLineArgsFile: 
   metroTileShowName: 0
   metroMediumTileShowName: 0
-  metroLargeTileShowName: 0
-  metroWideTileShowName: 0
+  metroLargeTileShowName: 1
+  metroWideTileShowName: 1
   metroDefaultTileSize: 1
   metroTileForegroundText: 1
-  metroTileBackgroundColor: {r: 0, g: 0, b: 0, a: 1}
+  metroTileBackgroundColor: {r: .0449826978, g: .382352948, b: .0612695664, a: 1}
   metroSplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 1}
   metroSplashScreenUseBackgroundColor: 0
-  platformCapabilities: {}
+  platformCapabilities:
+    WindowsStoreApps:
+      EnterpriseAuthentication: False
+      HumanInterfaceDevice: False
+      InternetClient: False
+      InternetClientServer: False
+      Location: False
+      Microphone: False
+      MusicLibrary: False
+      PicturesLibrary: False
+      PrivateNetworkClientServer: False
+      Proximity: False
+      RemovableStorage: False
+      SharedUserCertificates: False
+      VideosLibrary: False
+      WebCam: False
   metroFTAName: 
   metroFTAFileTypes: []
   metroProtocolName: 
