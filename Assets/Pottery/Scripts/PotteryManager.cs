@@ -88,7 +88,10 @@ public class PotteryManager : MonoBehaviour
                             case GESTURE.PUSH:
                                 {
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); };
+                                    //v-- benutzt prozentuale menge der vertices
                                     spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea, currentDeformFunction);
+                                    //v- benutzt feste hoehe
+                                    //spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea, currentDeformFunction, Spline.UseAbsolutegeHeight);
                                 }
                                 break;
 
@@ -100,9 +103,10 @@ public class PotteryManager : MonoBehaviour
                                 break;
                             case GESTURE.SMOOTH:
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Sin(input); };
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.01f; };
                                     //reduced affected area
-                                    spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea*0.5f, currentDeformFunction);
+                                    //spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea*0.5f, currentDeformFunction);
+                                    spline.SmoothArea(tipPosition, effectStrength, affectedArea * 0.8f, currentDeformFunction);
                                 }
                                 break;
                             default:
@@ -212,6 +216,7 @@ public class PotteryManager : MonoBehaviour
 
         //if angle is bigger than 1.1-> hand is pinching
         //1.1 is approximated value, possibly not best value for everyone
+
         if (angle > 1.1f) {
             affectedHeight = Vector3.Distance(indexTipPosition, thumbTipPosition);
             return GESTURE.PULL;
