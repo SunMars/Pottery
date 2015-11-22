@@ -29,7 +29,8 @@ public class PotteryManager : MonoBehaviour
     {
         HANDMODUS,
         TOOLMODUS,
-        HUDMODUS
+        HUDMODUS,
+        NONE
     }
     enum TOOL
     {
@@ -62,15 +63,16 @@ public class PotteryManager : MonoBehaviour
     void Update()
     {
         Frame frame = m_leapController.Frame();
-        //check if hands are found:
 
-        switch (checkIntend())
+        // Guess what the user wants to do
+        switch (checkIntend(frame))
         {
             case MODUS.HANDMODUS:
                 {
                     // Check if Hand touches clay
+                    // todo: getclosest finger
                     Vector3 tipPosition = frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-                    tipPosition *= handController.localScale.x; 
+                    tipPosition *= handController.localScale.x; //scale position with Handmovement
                     tipPosition += handController.position; 
 
                     // [Debug] moves white sphere to tip Position
@@ -85,19 +87,22 @@ public class PotteryManager : MonoBehaviour
                         {
                             case GESTURE.PUSH:
                                 {
-                                    spline.PushAtPosition(tipPosition, effectStrength, affectedHeight, 0f, delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); });
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); };
+                                    spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea, currentDeformFunction);
                                 }
                                 break;
 
                             case GESTURE.PULL:
                                 {
-                                    spline.PullAtPosition(tipPosition-new Vector3(0f,affectedHeight/2, 0f), effectStrength, affectedHeight, 0f, delegate (float input) { return Mathf.Pow(Mathf.Sin(input),1f); });
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); };
+                                    spline.PullAtPosition(tipPosition, effectStrength, affectedArea, currentDeformFunction);
                                 }
                                 break;
                             case GESTURE.SMOOTH:
                                 {
-                                    spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea);
-                                    //(tipPosition, effectStrength, effectYHeight,delegate (float input) { return 1f; })
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Sin(input); };
+                                    //reduced affected area
+                                    spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea*0.5f, currentDeformFunction);
                                 }
                                 break;
                             default:
@@ -111,16 +116,16 @@ public class PotteryManager : MonoBehaviour
                 {
                     //Get TipPosition of the Tool
                     Vector3 tipPosition = frame.Tools[0].TipPosition.ToUnityScaled(false);
-                    tipPosition *= handController.localScale.x; 
+                    tipPosition *= handController.localScale.x; //scale position with Handmovement
                     tipPosition += handController.position; 
+
                     // [Debug] moves white sphere to tip Position
                     fingerTipSphere.transform.position = tipPosition;
 
                     float splineDistToPoint = spline.DistanceToPoint(tipPosition);
-                    //Debug.Log("Distance: " + splineDistToPoint);
+
                     if (splineDistToPoint <= 0)
                     {
-                        //Debug.Log("Deforming Spline with: " + currentTool);
                         switch (currentTool)
                         {
                             case TOOL.PUSHTOOL:
@@ -142,8 +147,11 @@ public class PotteryManager : MonoBehaviour
                     }
                 }
                 break;
+            case MODUS.HUDMODUS:
+                //todo
+                break;
             default:
-                return;
+                return; // prevents recalc of Spline (Modus.None)
         }
 
         //get List of deformed Spline
@@ -153,9 +161,22 @@ public class PotteryManager : MonoBehaviour
         latheController.updateMesh(currentSpline);
     }
 
-    private MODUS checkIntend()
+    private MODUS checkIntend(Frame frame)
     {
-        return MODUS.HANDMODUS;
+        // if palm faces away from Objekt -> Hudmodus
+        // if Tool visible -> toolmodus
+        if (frame.Tools.Count > 0)
+        {
+            //Debug.Log("checkIntend has deteced a Tool!");
+            return MODUS.TOOLMODUS;
+        }
+        // if Hand visible -> handmodus
+        if (frame.Hands.Count > 0) {
+            return MODUS.HANDMODUS;
+        } else // User does not interact with Spline
+        {
+            return MODUS.NONE;
+        }
     }
 
 
@@ -184,6 +205,7 @@ public class PotteryManager : MonoBehaviour
             dotValue = 1.0f;
         else if (dotValue < -1.0f)
             dotValue = -1.0f;
+
         //skalarprodukt
         //angle between thumb, indexfinger and Palm
         float angle = Mathf.Acos(dotValue / (v1.sqrMagnitude * v2.sqrMagnitude));

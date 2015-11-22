@@ -37,7 +37,7 @@ public class Spline
         {
             for(int i =0; i < spline.Length - 1; i++)
             {
-                this.SmoothAtPosition(spline[i], 0.5f, 0.2f);
+                this.SmoothAtPosition(spline[i], 0.5f, 0.2f, delegate (float input) { return Mathf.Sin(input); });
             }
         }
     }
@@ -90,48 +90,25 @@ public class Spline
     /// pushes into clay at given position. affects nearby vertices as well
     /// </summary>
     /// <param name="position">point of maximum deformation</param>
-
+    /// <param name="strength">distance of hand to clayegde</param>
     /// <param name="effectStrength">how strongly nearby vertices are affected (1.0 = sinus, 0.5 = half sinus, 0 = no smoothing)</param>
-    /// <param name="affectedHeight">Height around position that is affected by the push effect</param>
-    /// <param name="maximumHeight">sets the size of the maximum of the push curve, should never be bigger than affectedHeight </param>
-    /// <param name="deformFunc">a method that calculates the look of the pushing curve</param>
-    internal void PushAtPosition(Vector3 position, float effectStrength, float affectedHeight, float maximumHeight, Func<float, float> deformFunc)
+    /// <param name="affectedArea">Percantage of affectedVertices (1.0 = 100% of all vertices)</param>
+    internal void PushAtPosition(Vector3 position, float strength, float effectStrength, float affectedArea, Func<float, float> deformFunc)
     {
-        float maxDeform = 0.001f;
-        int startVertex = getCorrespondingVertex(position.y - affectedHeight / 2);
-        int endVertex = getCorrespondingVertex(position.y + affectedHeight / 2);
+        this.deformAtPosition(false, position, strength, effectStrength, affectedArea, deformFunc);
+    }
 
-        int maxStartVertex = getCorrespondingVertex(position.y - maximumHeight / 2);
-        int maxEndVertex = getCorrespondingVertex(position.y + maximumHeight / 2);
-
-        int affectedVertices = endVertex - startVertex;
-        int affectedMaximumVertices = maxEndVertex - maxStartVertex;
-
-        float piStep = 1f / (affectedVertices - affectedMaximumVertices) * (float)Math.PI;
-
-        for (int i = 0; i <= affectedVertices; i++)
-        {
-            float angle;
-
-            if (startVertex + i > 0 || startVertex + i < spline.Length - 1)
-            {
-                if (startVertex + i >= maxStartVertex && startVertex + i <= maxEndVertex)
-                {
-                    angle = Mathf.PI / 2;
-                }
-                else if (startVertex + i < maxStartVertex)
-                {
-                    angle = i * piStep;
-                }
-                else
-                {
-                    angle = (i - affectedMaximumVertices) * piStep;
-                }
-
-                spline[startVertex + i].z = Mathf.Max(spline[startVertex + i].z - effectStrength * maxDeform * deformFunc(angle), 0.1f);
-
-            }
-        }
+    /// <summary>
+    /// increses spline radius at given position
+    /// </summary>
+    /// <param name="position"> Point of maximal Pull</param>
+    /// <param name="effectStrength">how strongly nearby vertices are affected (1.0 = sinus, 0.5 = half sinus, 0 = no smoothing)</param>
+    /// <param name="affectedArea">Percantage of affectedVertices (1.0 = 100% of all vertices)</param>
+    internal void PullAtPosition(Vector3 position, float effectStrength, float affectedArea, Func<float, float> deformFunc)
+    {
+        // todo: set strength of pull via gesture, fornow: hardcoded
+        float strength = 0.005f;
+        this.deformAtPosition(true, position, strength, effectStrength, affectedArea, deformFunc);
     }
 
     /// <summary>
@@ -140,24 +117,27 @@ public class Spline
     /// <param name="tipPosition"></param>
     /// <param name="effectStrength">how strong smooth effect is (1.0 = sinus, 0.5 = half sinus, 0 = no smoothing)</param>
     /// <param name="affectedArea">Percantage of affectedVertices (1.0 = 100% of all vertices)</param>
-    internal void SmoothAtPosition(Vector3 position, float effectStrength, float affectedArea)
+    internal void SmoothAtPosition(Vector3 position, float effectStrength, float affectedArea, Func<float, float> smoothProfileFunc)
     {
+        // calculate number of affected vertices,first and last affected vertex
         float affectedVertices = (int)Mathf.Floor(spline.Length * affectedArea);
         if (affectedVertices % 2 == 0)
             affectedVertices += 1;
         int startVertex = getCorrespondingVertex(position.y) - ((int)affectedVertices - 1) / 2;
         int endVertex = getCorrespondingVertex(position.y) + ((int)affectedVertices - 1) / 2;
 
+        // generate a smoothprofile
         float[] smoothprofile = new float[(int)affectedVertices];
         smoothprofile[(int)Mathf.Floor(affectedVertices / 2) + 1] = 1f;
         for (int i = 0; i < (affectedVertices - 1) / 2; i++)
         {
-            smoothprofile[i] = Mathf.Sin(i / affectedVertices) * effectStrength;
+            smoothprofile[i] = smoothProfileFunc(i / affectedVertices) * effectStrength;
             smoothprofile[(int)affectedVertices - 1 - i] = smoothprofile[i];
         }
+
         //accumulate surounding spline-vertices
         float accuValues = 0;
-        float accuCount = 0;
+        float accuCount = 0; //extra value, if smooth near object borders, endVertex-startVertex does not work
         for (int i = startVertex; i < endVertex; i++)
         {
             //avoid vertices with radius 0
@@ -169,52 +149,61 @@ public class Spline
             accuCount += smoothprofile[i - startVertex];
         }
 
-        //set new smoothed value
+        //todo apply effect on nearby vertices as well
+        // apply new smoothed value
         spline[getCorrespondingVertex(position.y)].z = accuValues / accuCount;
     }
 
     /// <summary>
-    /// increses spline radius at given position
+    /// private deformation class, used bei internal classes
     /// </summary>
-    /// <param name="position"> Point of maximal Pull</param>
-    /// <param name="effectStrength">how strongly nearby vertices are affected</param>
-    /// <param name="affectedHeight">Height as float that is affected by the pull effect</param>
-    /// <param name="maximumHeight">sets the size of the maximum of the pull curve, should never be bigger than affectedHeight </param>
-    /// <param name="deformFunc">a method that calculates the look of the pulling curve</param>
-    internal void PullAtPosition(Vector3 position, float effectStrength, float affectedHeight, float maximumHeight, Func<float, float> deformFunc)
+    /// <param name="pull">true=pull, false = push</param>
+    /// <param name="position"></param>
+    /// <param name="strength"></param>
+    /// <param name="effectStrength"></param>
+    /// <param name="affectedArea"></param>
+    /// <param name="deformFunc"></param>
+    private void deformAtPosition(bool pull, Vector3 position, float strength, float effectStrength, float affectedArea, Func<float, float> deformFunc)
     {
-        float maxDeform = 0.001f;
-        int startVertex = getCorrespondingVertex(position.y - affectedHeight/2);
-        int endVertex = getCorrespondingVertex(position.y + affectedHeight/2);
+        // check deform strenght against min & max
+        float strengthOfDeformation = Mathf.Min(0.01f, Mathf.Abs(strength));
+        strengthOfDeformation = Mathf.Max(0.0001f, strengthOfDeformation);
 
-        int maxStartVertex = getCorrespondingVertex(position.y - maximumHeight / 2);
-        int maxEndVertex = getCorrespondingVertex(position.y + maximumHeight / 2);
+        // calculate number of affected vertices,first and last affected vertex
+        float affectedVertices = (int)Mathf.Floor(spline.Length * affectedArea);
+        if (affectedVertices % 2 == 0)
+            affectedVertices += 1;
+        int startVertex = getCorrespondingVertex(position.y) - ((int)affectedVertices - 1) / 2;
+        int endVertex = getCorrespondingVertex(position.y) + ((int)affectedVertices - 1) / 2;
 
-        int affectedVertices = endVertex - startVertex;
-        int affectedMaximumVertices = maxEndVertex - maxStartVertex;
-
-        float piStep = 1f / (affectedVertices-affectedMaximumVertices) * (float)Math.PI;
-
-        for(int i = 0; i <= affectedVertices; i++)
+        // generate list with normal-verteilung for deformation
+        float[] deformFactors = new float[(int)affectedVertices];
+        //  set center = maximum
+        deformFactors[(int)Mathf.Floor(affectedVertices / 2)] = deformFunc(affectedVertices - 1f) * effectStrength;
+        //  set all others with given function
+        for (int i = 0; i < (affectedVertices - 1) / 2; i++)
         {
-            float angle;
-            
-            if (startVertex + i > 0||startVertex + i < spline.Length-1)
-            {    
-                if(startVertex + i >= maxStartVertex && startVertex + i <= maxEndVertex)
-                {
-                    angle = Mathf.PI / 2;
-                }else if (startVertex + i < maxStartVertex)
-                {
-                    angle = i * piStep;
-                }else
-                {
-                    angle = (i - affectedMaximumVertices) * piStep;
-                }
+            deformFactors[i] = deformFunc(i / affectedVertices) * effectStrength;
+            deformFactors[(int)affectedVertices - 1 - i] = deformFactors[i];
+        }
 
-                spline[startVertex + i].z = Mathf.Min(spline[startVertex + i].z + effectStrength * maxDeform * deformFunc(angle), 0.8f);
-                
+        // apply deformation to spline
+        for (int i = startVertex; i < endVertex; i++)
+        {
+            if (i < 0 || i >= spline.Length)
+            {
+                continue;
             }
+            if (pull)
+            {
+                spline[i].z += spline[i].z * strengthOfDeformation * deformFactors[i - startVertex];
+            }
+            else
+            {
+                spline[i].z -= spline[i].z * strengthOfDeformation * deformFactors[i - startVertex];
+            }
+            
+
         }
     }
 
