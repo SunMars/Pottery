@@ -22,7 +22,7 @@ public class PotteryManager : MonoBehaviour
 
     private Spline spline;
     private Controller m_leapController;
-
+    public int exportId;
     
     private TOOL currentTool;
 
@@ -156,14 +156,14 @@ public class PotteryManager : MonoBehaviour
                         {
                             case TOOL.PUSHTOOL:
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); };
-                                    spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea*2, currentDeformFunction);
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 0.8f); };
+                                    spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea/2, currentDeformFunction, true);
                                 }
                                 break;
                             case TOOL.PULLTOOL:
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); };
-                                    spline.PullAtPosition(tipPosition, effectStrength, affectedArea*2, currentDeformFunction);
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
+                                    spline.PullAtPosition(tipPosition, effectStrength*2, affectedArea, currentDeformFunction, true);
                                 }
                                 break;
                             case TOOL.SMOOTHTOOL:
@@ -257,7 +257,9 @@ public class PotteryManager : MonoBehaviour
     }
 
     
-    //Only for testing - switching tools with keys
+    /// <summary>
+    /// method for getting the input of the current frame
+    /// </summary>
     private void getInput()
     {
         if (Input.GetKey("1"))
@@ -277,6 +279,13 @@ public class PotteryManager : MonoBehaviour
             currentTool = TOOL.SMOOTHTOOL;
             handController.toolModel = toolModels[2];
             Debug.Log("Smoothing Tool Selected");
+        }
+
+        //Press E to export the current spline 
+        if (Input.GetKey("e"))
+        {
+            Export.exportSpline(spline.getSpline(), exportId.ToString());
+            exportId += 1;
         }
     }
 }

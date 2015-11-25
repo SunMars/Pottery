@@ -437,7 +437,7 @@ MonoBehaviour:
   ClayHeight: 1.5
   ClayRadius: .600000024
   ClayVariance: .0199999996
-  effectStrength: 1
+  effectStrength: .200000003
   affectedArea: .300000012
   toolModels:
   - {fileID: 11476104, guid: 229f227e0f3959e4aba8da01aa2c149f, type: 2}
@@ -445,6 +445,7 @@ MonoBehaviour:
   - {fileID: 11430772, guid: 1a73011d31045f045807d20df6145783, type: 2}
   lineRenderer: {fileID: 578735031}
   fingerTipSphere: {fileID: 1513242490}
+  exportId: 1
 --- !u!4 &884631264
 Transform:
   m_ObjectHideFlags: 0
