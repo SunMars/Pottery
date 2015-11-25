@@ -57,7 +57,9 @@ public class ToolModel : MonoBehaviour {
   public Quaternion GetToolRotation() {
     Quaternion local_rotation = Quaternion.FromToRotation(Vector3.forward,
                                                           tool_.Direction.ToUnity(mirror_z_axis_));
-    return GetController().transform.rotation * local_rotation;
+        //Quaternion local_rotation = Quaternion.FromToRotation(Vector3.back,
+        //                                                      tool_.Direction.ToUnity(mirror_z_axis_));
+        return GetController().transform.rotation * local_rotation;
   }
 
   /** Calculates the tip velocity of this tool model within the scene. */
