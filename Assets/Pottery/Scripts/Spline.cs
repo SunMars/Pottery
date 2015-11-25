@@ -80,13 +80,11 @@ public class Spline
     /// <returns>distance between spline and given point\nDIST<0 means point is in spline\nDIST=0 means point is on spline\nDIST>0 means point is outside of spline</returns>
     internal float DistanceToPoint(Vector3 point)
     {
-        //Debug.Log("DistanceToPoint:\tgot Point:"+point.ToString());
         // get corresponding spline vertex
         int vertexIndex = getCorrespondingVertex(point.y);
 
         // compare vertex with given point
         return Vector3.Distance(new Vector3(0f, point.y, 0f), point) - Vector3.Distance(new Vector3(0f, point.y, 0f), spline[vertexIndex]);
-
     }
 
     /// <summary>
@@ -275,6 +273,20 @@ public class Spline
     }
 
     /// <summary>
+    /// scales a value with vMin and vMax to new Min and Max
+    /// </summary>
+    /// <param name="valueIn"></param>
+    /// <param name="baseMin"></param>
+    /// <param name="baseMax"></param>
+    /// <param name="limitMin"></param>
+    /// <param name="limitMax"></param>
+    /// <returns></returns>
+    public float scale(float valueIn, float baseMin, float baseMax, float limitMin, float limitMax)
+    {
+        return ((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
+    }
+
+    /// <summary>
     /// private deformation class, used bei internal classes
     /// </summary>
     /// <param name="pull">true=pull, false = push</param>
@@ -305,15 +317,13 @@ public class Spline
             endVertex = getCorrespondingVertex(position.y) + ((int)affectedVertices - 1) / 2;
         }
 
-        // generate list with normal-verteilung for deformation
         float[] deformFactors = new float[(int)affectedVertices];
-        //  set center = maximum
-        deformFactors[(int)Mathf.Floor(affectedVertices / 2)] = deformFunc(affectedVertices - 1f) * effectStrength;
-        //  set all others with given function
-        for (int i = 0; i < (affectedVertices - 1) / 2; i++)
+        int tmp = (int)Mathf.Floor(affectedVertices / 2);
+        for (int i = 0; i < (int)Mathf.Floor(affectedVertices / 2); i++)
         {
-            deformFactors[i] = deformFunc(i / affectedVertices) * effectStrength;
-            deformFactors[(int)affectedVertices - 1 - i] = deformFactors[i];
+            //start at center
+            deformFactors[tmp + i] = deformFunc(scale(i, 0, (affectedVertices+2)/4f, 0, 1)) * effectStrength;
+            deformFactors[tmp - i] = deformFactors[tmp + i];
         }
 
         // apply deformation to spline
@@ -329,7 +339,8 @@ public class Spline
             }
             else
             {
-                spline[i].z -= spline[i].z * strengthOfDeformation * deformFactors[i - startVertex];
+                //spline[i].z -= spline[i].z * strengthOfDeformation * deformFactors[i - startVertex];
+                spline[i].z -= strengthOfDeformation * deformFactors[i - startVertex];
             }
             
 

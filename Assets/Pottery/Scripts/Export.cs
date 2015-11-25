@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.IO;
 using System;
-
+using System.Collections.Generic;
 
 /// <summary>
 /// Static class for methods to export a mesh.
@@ -54,5 +54,53 @@ public static class Export {
         //Close File
         streamWriter.Close();
         Debug.Log("STL Export finished");
+    }
+
+    /// <summary>
+    /// Exports given Spline to /Pottery/ folder with given name
+    /// saved as csv
+    /// </summary>
+    /// <param name="spline"></param>
+    /// <param name="fileName"></param>
+    public static void exportSpline(Vector3[] spline, string fileName)
+    {
+        //check if there is a Folder for Pottery in Documents
+        //if not create a new Folder
+        string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/Pottery/";
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+
+        //create file
+        StreamWriter streamWriter = File.CreateText(path + fileName + ".csv");
+        for(int i = 0; i < spline.Length; i++)
+        {
+            streamWriter.WriteLine(spline[i].x + ";"+ spline[i].y+ ";" + spline[i].z+ ";");
+        }
+        //Close File
+        streamWriter.Close();
+        Debug.Log("CSV Export finished");
+    }
+
+    /// <summary>
+    /// imports splines from folder /Pottery/
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    public static Vector3[] importSpline(string fileName)
+    {
+        List<Vector3> spline = new List<Vector3>();
+        //open file
+        string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "/Pottery/";
+
+        StreamReader streamReader = File.OpenText(path+fileName + ".csv");
+        String[] content = streamReader.ReadToEnd().Split('\n');
+        for (int i = 0; i < content.Length; i++)
+        {
+            String[] row = content[i].Split(';');
+            spline.Add(new Vector3(float.Parse(row[0]), float.Parse(row[1]), float.Parse(row[2])));
+        }
+        return spline.ToArray();
     }
 }

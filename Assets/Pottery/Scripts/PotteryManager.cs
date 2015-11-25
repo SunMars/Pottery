@@ -20,7 +20,6 @@ public class PotteryManager : MonoBehaviour
 
     private Spline spline;
     private Controller m_leapController;
-    private float affectedHeight; //difference of thumb and index finger
 
     
     private TOOL currentTool;
@@ -43,6 +42,7 @@ public class PotteryManager : MonoBehaviour
     {
         PUSH,
         PULL,
+        PULL1,
         SMOOTH
     }
 
@@ -87,23 +87,40 @@ public class PotteryManager : MonoBehaviour
                         {
                             case GESTURE.PUSH:
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); };
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
+                                    //Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.1f; };
                                     //v-- benutzt prozentuale menge der vertices
                                     spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea, currentDeformFunction);
-                                    //v- benutzt feste hoehe
-                                    //spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea, currentDeformFunction, Spline.UseAbsolutegeHeight);
                                 }
                                 break;
 
-                            case GESTURE.PULL:
+                            case GESTURE.PULL: //pull with open hand - use height
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); };
+                                    //Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.5f; };
+                                    
+                                    Vector3 indexTipPosition = handController.localScale.x * frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
+                                    indexTipPosition += handController.position;
+                                    Vector3 thumbTipPosition = handController.localScale.x * frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
+                                    thumbTipPosition += handController.position;
+
+                                    float affectedHeight = Mathf.Abs(indexTipPosition.y - thumbTipPosition.y);
+
+                                    Vector3 center = (indexTipPosition + thumbTipPosition) / 2f;
+                                    spline.PullAtPosition(center, effectStrength, affectedHeight, currentDeformFunction, Spline.UseAbsolutegeHeight);
+                                }
+                                break;
+                            case GESTURE.PULL1: //pull with pinch
+                                {
+                                   //Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.5f; };
+                                    
                                     spline.PullAtPosition(tipPosition, effectStrength, affectedArea, currentDeformFunction);
                                 }
                                 break;
                             case GESTURE.SMOOTH:
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.01f; };
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.05f; };
                                     //reduced affected area
                                     //spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea*0.5f, currentDeformFunction);
                                     spline.SmoothArea(tipPosition, effectStrength, affectedArea * 0.8f, currentDeformFunction);
@@ -218,11 +235,14 @@ public class PotteryManager : MonoBehaviour
         //1.1 is approximated value, possibly not best value for everyone
 
         if (angle > 1.1f) {
-            affectedHeight = Vector3.Distance(indexTipPosition, thumbTipPosition);
             return GESTURE.PULL;
         } else {
-            affectedHeight = 0.2f;
-            return GESTURE.PUSH;
+            if (hands[0].PinchStrength > 0.5f || hands[1].PinchStrength > 0.5f) {
+                return GESTURE.PULL1;
+            }
+            else {
+                return GESTURE.PUSH;
+            }
         }
         
     }
