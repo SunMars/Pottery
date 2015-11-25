@@ -105,10 +105,10 @@ public class PotteryManager : MonoBehaviour
                                     //Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.5f; };
                                     
-                                    Vector3 indexTipPosition = handController.localScale.x * frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-                                    indexTipPosition += handController.position;
-                                    Vector3 thumbTipPosition = handController.localScale.x * frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
-                                    thumbTipPosition += handController.position;
+                                    Vector3 indexTipPosition = handController.transform.localScale.x * frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
+                                    indexTipPosition += handController.transform.position;
+                                    Vector3 thumbTipPosition = handController.transform.localScale.x * frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
+                                    thumbTipPosition += handController.transform.position;
 
                                     float affectedHeight = Mathf.Abs(indexTipPosition.y - thumbTipPosition.y);
 
