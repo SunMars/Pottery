@@ -324,7 +324,7 @@ Prefab:
     - target: {fileID: 11400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: toolModel
       value: 
-      objectReference: {fileID: 11400000, guid: cf36a9df539034efbb4eec31011053e7,
+      objectReference: {fileID: 11476104, guid: 229f227e0f3959e4aba8da01aa2c149f,
         type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
@@ -396,6 +396,10 @@ Prefab:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f17421d3f7aff1940a303190f68c82d7, type: 3}
   m_IsPrefabParent: 0
@@ -428,14 +432,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leaphandController: {fileID: 120162990}
   latheController: {fileID: 2033726155}
-  handController: {fileID: 1532430490}
-  handMovementScaling: 4
+  handController: {fileID: 120162990}
   ClayResolution: 60
   ClayHeight: 1.5
   ClayRadius: .600000024
   ClayVariance: .0199999996
   effectStrength: 1
   affectedArea: .300000012
+  toolModels:
+  - {fileID: 11476104, guid: 229f227e0f3959e4aba8da01aa2c149f, type: 2}
+  - {fileID: 11472470, guid: 7d469a6390251194fa4b1c28547d49b8, type: 2}
+  - {fileID: 11430772, guid: 1a73011d31045f045807d20df6145783, type: 2}
   lineRenderer: {fileID: 578735031}
   fingerTipSphere: {fileID: 1513242490}
 --- !u!4 &884631264
@@ -739,7 +746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa7f6857784e70546afa96f53982877e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  revolutionsPerSecond: 0
+  revolutionsPerSecond: 100
 --- !u!1 &2033726151
 GameObject:
   m_ObjectHideFlags: 0
@@ -751,6 +758,7 @@ GameObject:
   - 114: {fileID: 2033726155}
   - 33: {fileID: 2033726154}
   - 23: {fileID: 2033726153}
+  - 114: {fileID: 2033726156}
   m_Layer: 0
   m_Name: LatheObject
   m_TagString: Untagged
@@ -814,3 +822,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: 363c33b09b351314d85a8aad7945f23a, type: 2}
   sections: 32
+--- !u!114 &2033726156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2033726151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa7f6857784e70546afa96f53982877e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  revolutionsPerSecond: 0
