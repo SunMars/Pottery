@@ -26,6 +26,8 @@ public class PotteryManager : MonoBehaviour
     
     private TOOL currentTool;
 
+    public bool DebugdrawLine;
+
     enum MODUS
     {
         HANDMODUS,
@@ -53,6 +55,7 @@ public class PotteryManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        DebugdrawLine = false;
         //m_leapController = new Controller();
         m_leapController = handController.GetLeapController();
         // initiate the Spline 
@@ -61,7 +64,7 @@ public class PotteryManager : MonoBehaviour
         // generate initial clay-object
         latheController.init(spline.getSplineList());
         currentTool = TOOL.PUSHTOOL;
-
+        
     }
 
     // Update is called once per frame
@@ -156,19 +159,19 @@ public class PotteryManager : MonoBehaviour
                         {
                             case TOOL.PUSHTOOL:
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); };
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
                                     spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea*2, currentDeformFunction);
                                 }
                                 break;
                             case TOOL.PULLTOOL:
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Sin(input), 2f); };
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
                                     spline.PullAtPosition(tipPosition, effectStrength, affectedArea*2, currentDeformFunction);
                                 }
                                 break;
                             case TOOL.SMOOTHTOOL:
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Sin(input); };
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input); };
                                     //reduced affected area
                                     spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea * 0.25f, currentDeformFunction);
                                 }
@@ -189,6 +192,20 @@ public class PotteryManager : MonoBehaviour
 
         //generate new Mesh
         latheController.updateMesh(currentSpline);
+
+        if (DebugdrawLine)
+        { //redraw debug line
+            Vector3[] tmp = spline.getSpline();
+            
+            for (int i=0;i < tmp.Length; i++)
+            {
+                
+                lineRenderer.SetPosition(i, tmp[i]);
+            }
+            DebugdrawLine = false;
+        }
+
+
     }
 
     private MODUS checkIntend(Frame frame)
@@ -277,6 +294,10 @@ public class PotteryManager : MonoBehaviour
             currentTool = TOOL.SMOOTHTOOL;
             handController.toolModel = toolModels[2];
             Debug.Log("Smoothing Tool Selected");
+        }
+        if (Input.GetKey("4"))
+        {
+            this.DebugdrawLine = true;
         }
     }
 }
