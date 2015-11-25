@@ -26,6 +26,8 @@ public class PotteryManager : MonoBehaviour
     
     private TOOL currentTool;
 
+    public bool DebugdrawLine;
+
     enum MODUS
     {
         HANDMODUS,
@@ -53,6 +55,7 @@ public class PotteryManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        DebugdrawLine = false;
         //m_leapController = new Controller();
         m_leapController = handController.GetLeapController();
         // initiate the Spline 
@@ -61,7 +64,7 @@ public class PotteryManager : MonoBehaviour
         // generate initial clay-object
         latheController.init(spline.getSplineList());
         currentTool = TOOL.PUSHTOOL;
-
+        
     }
 
     // Update is called once per frame
@@ -168,7 +171,7 @@ public class PotteryManager : MonoBehaviour
                                 break;
                             case TOOL.SMOOTHTOOL:
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Sin(input); };
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input); };
                                     //reduced affected area
                                     spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea * 0.25f, currentDeformFunction);
                                 }
@@ -189,6 +192,20 @@ public class PotteryManager : MonoBehaviour
 
         //generate new Mesh
         latheController.updateMesh(currentSpline);
+
+        if (DebugdrawLine)
+        { //redraw debug line
+            Vector3[] tmp = spline.getSpline();
+            
+            for (int i=0;i < tmp.Length; i++)
+            {
+                
+                lineRenderer.SetPosition(i, tmp[i]);
+            }
+            DebugdrawLine = false;
+        }
+
+
     }
 
     private MODUS checkIntend(Frame frame)
@@ -280,8 +297,11 @@ public class PotteryManager : MonoBehaviour
             handController.toolModel = toolModels[2];
             Debug.Log("Smoothing Tool Selected");
         }
-
-        //Press E to export the current spline 
+        if (Input.GetKey("4"))
+        {
+            this.DebugdrawLine = true;
+        }
+		//Press E to export the current spline 
         if (Input.GetKey("e"))
         {
             Export.exportSpline(spline.getSpline(), exportId.ToString());
