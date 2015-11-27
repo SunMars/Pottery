@@ -173,7 +173,7 @@ public class PotteryManager : MonoBehaviour
                                 {
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input); };
                                     //reduced affected area
-                                    spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea * 0.25f, currentDeformFunction);
+                                    spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea * 0.2f, currentDeformFunction);
                                 }
                                 break;
                         }
