@@ -13,7 +13,7 @@ public class PotteryManager : MonoBehaviour
     public int ClayResolution;
     public float ClayHeight, ClayRadius, ClayVariance;
     public float effectStrength, affectedArea;
-
+    public UIManager uiManager;
     public ToolModel[] toolModels;
 
     [Header("Debug")]
@@ -281,7 +281,7 @@ public class PotteryManager : MonoBehaviour
     /// </summary>
     private void getInput()
     {
-        if (Input.GetKey("1"))
+        if (Input.GetKeyUp("1"))
         {
             currentTool = TOOL.PUSHTOOL1;
             handController.toolModel = toolModels[0];
@@ -289,29 +289,43 @@ public class PotteryManager : MonoBehaviour
 
             handController.destroyCurrentTools();
         }
-        if (Input.GetKey("2"))
+        if (Input.GetKeyUp("2"))
         {
             currentTool = TOOL.PULLTOOL1;
             handController.toolModel = toolModels[1];
             Debug.Log("Pull Tool Selected");
             handController.destroyCurrentTools();
         }
-        if (Input.GetKey("3"))
+        if (Input.GetKeyUp("3"))
         {
             currentTool = TOOL.SMOOTHTOOL1;
             handController.toolModel = toolModels[2];
             Debug.Log("Smoothing Tool Selected");
             handController.destroyCurrentTools();
         }
-        if (Input.GetKey("4"))
+        if (Input.GetKeyUp("4"))
         {
             this.DebugdrawLine = true;
         }
 		//Press E to export the current spline 
-        if (Input.GetKey("e"))
+        if (Input.GetKeyUp("e"))
         {
             Export.exportSpline(spline.getSpline(), exportId.ToString());
             exportId += 1;
         }
+    }
+
+    internal void resetAll()
+    {
+        // initiate the Spline 
+        spline = new Spline(ClayRadius, ClayHeight, ClayResolution, ClayVariance);
+
+        // generate initial clay-object
+        latheController.updateMesh(spline.getSplineList());
+    }
+
+    internal Spline getSpline()
+    {
+        return spline;
     }
 }

@@ -98,8 +98,10 @@ public static class Export {
         String[] content = streamReader.ReadToEnd().Split('\n');
         for (int i = 0; i < content.Length; i++)
         {
-            String[] row = content[i].Split(';');
-            spline.Add(new Vector3(float.Parse(row[0]), float.Parse(row[1]), float.Parse(row[2])));
+            if (content[i].Contains(";")) { 
+                String[] row = content[i].Split(';');
+                spline.Add(new Vector3(float.Parse(row[0]), float.Parse(row[1]), float.Parse(row[2])));
+            }
         }
         return spline.ToArray();
     }

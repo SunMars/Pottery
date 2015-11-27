@@ -1,58 +1,138 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
-
+using System;
+using Random = UnityEngine.Random;
 
 public class UIManager : MonoBehaviour {
 
-    public MeshFilter exportObject;
+    public MeshFilter exportSTLObject;
+    public List<Sprite> targetImages;
+    public UnityEngine.UI.Image targetCanvas;
+    public int targetCount = 4;
 
-    /*
+    enum MODE
+    {
+        FREEFORM,
+        TARGET
+    }
+
+    private float startTime;
+    private PotteryManager manager;
+    private List<Spline> targetSplines;
+    private List<Spline> userSplines;
+    private List<float> userTimes;
+    private int targetstep;
+
 	// Use this for initialization
 	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}*/
+        targetstep = -1;
+        targetCanvas.transform.parent.gameObject.SetActive(false);
+
+        startTime = Time.time;
+        initLists();
+        manager = this.transform.parent.gameObject.GetComponent<PotteryManager>();
+        targetSplines = new List<Spline>();
+        importSplines();
+
+    }
+
+    // Update is called once per frame
+    void Update () {
+        getInput();
+    }
+
+    private void initLists()
+    {
+        targetstep = 0;
+        userSplines = new List<Spline>();
+        userTimes = new List<float>();
+    }
+
+    private void getInput()
+    {
+        //Press E to export the current spline 
+        if (Input.GetKeyUp("space") && targetstep >= 0)
+        {
+            targetstep += 1;
+            if (targetstep == targetCount) {
+                targetstep = 0;
+                Debug.Log("finished!");
+                compareSpline();
+                return;
+            }
+            if(targetstep == 0)
+            {
+                userTimes.Add(Time.time - startTime);
+            }
+            else
+            {
+                userTimes.Add(Time.time - getAllTimes());
+            }
+            userSplines.Add(manager.getSpline());
+
+            Debug.Log("next step!");
+            //next image
+            targetCanvas.sprite = targetImages[targetstep];
+        }
+        // reset
+        if (Input.GetKeyUp("r"))
+        {
+            targetstep = 0;
+            targetCanvas.sprite = targetImages[targetstep];
+
+            manager.resetAll();
+        }
+        if (Input.GetKeyUp("f"))
+        {
+            if(targetstep == -1)
+            {
+                initLists();
+                targetCanvas.transform.parent.gameObject.SetActive(true);
+                manager.resetAll();   
+            } else {
+                targetstep = -1;
+                targetCanvas.transform.parent.gameObject.SetActive(false);
+                manager.resetAll();
+            }
+        }
+    }
+
+    private float getAllTimes()
+    {
+        float sum = 0;
+        for(int i = 0; i < userTimes.Count; i++)
+        {
+            sum += userTimes[i];
+        }
+        return sum;
+    }
+
+    internal void addUserSpline(Spline spline)
+    {
+        userSplines.Add(spline);
+    }
+
+    private void importSplines()
+    {
+        for(int i=0; i< targetCount; i++)
+        {
+            targetSplines.Add(new Spline(Export.importSpline("targetSpline_" + i.ToString())));
+        }
+        
+    }
 
     public void export()
     {
-        Export.exportSTL(exportObject.mesh, "sphere3");
+        Export.exportSTL(exportSTLObject.mesh, "sphere3");
     }
 
     public void compareSpline()
     {
-
-        //Create Splines for Testing the SplineComparison
-        Vector3[] spline1 = new Vector3[5];
-        Vector3[] Spline = new Vector3[5];
-        Vector3[] spline3 = new Vector3[5];
-        Vector3[] spline4 = new Vector3[5];
-        List<float>time = new List<float>();
-
-        for (int i = 0; i < 5; i++)
-        {
-            spline1[i] = new Vector3(0.0f, i / 5f, Random.Range(0.4f, 0.6f));
-            Spline[i] = new Vector3(0.0f, i / 5f, Random.Range(0.4f, 0.6f));
-            spline3[i] = new Vector3(0.0f, i / 5f, Random.Range(0.4f, 0.6f));
-            spline4[i] = new Vector3(0.0f, i / 5f, Random.Range(0.4f, 0.6f));
-            time.Add(Random.Range(4.0f, 8.0f));
-        }
-        List<Spline> targetSpline = new List<Spline>();
-        targetSpline.Add(new Spline(spline1));
-        targetSpline.Add(new Spline(Spline));
-        targetSpline.Add(new Spline(spline3));
-
-        List<Spline> userSpline = new List<Spline>();
-        userSpline.Add(new Spline(Spline));
-        userSpline.Add(new Spline(spline3));
-        userSpline.Add(new Spline(spline4));
-
-        SplineComparison.compare(targetSpline, userSpline, time, "Thereza");
+        SplineComparison.compare(targetSplines, userSplines, userTimes, "Thereza");
         
+        //todo reset all
+        initLists();
+        manager.resetAll();
     }
 }
