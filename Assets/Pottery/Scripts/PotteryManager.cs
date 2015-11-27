@@ -37,19 +37,19 @@ public class PotteryManager : MonoBehaviour
     }
     enum TOOL
     {
-        PUSHTOOL,
+        PUSHTOOL1,
         PUSHTOOL2,
-        PULLTOOL,
+        PULLTOOL1,
         PULLTOOL2,
-        SMOOTHTOOL,
+        SMOOTHTOOL1,
         SMOOTHTOOL2
     }
     enum GESTURE
     {
-        PUSH,
-        PULL,
+        PUSH1,
         PULL1,
-        SMOOTH
+        PULL2,
+        SMOOTH1
     }
 
     // Use this for initialization
@@ -63,7 +63,7 @@ public class PotteryManager : MonoBehaviour
 
         // generate initial clay-object
         latheController.init(spline.getSplineList());
-        currentTool = TOOL.PUSHTOOL;
+        currentTool = TOOL.PUSHTOOL1;
         
     }
 
@@ -94,7 +94,7 @@ public class PotteryManager : MonoBehaviour
                         // get current gesture
                         switch (getCurrentGesture(frame.Hands))
                         {
-                            case GESTURE.PUSH:
+                            case GESTURE.PUSH1:
                                 {
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
                                     //Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.1f; };
@@ -103,7 +103,7 @@ public class PotteryManager : MonoBehaviour
                                 }
                                 break;
 
-                            case GESTURE.PULL: //pull with open hand - use height
+                            case GESTURE.PULL1: //pull with open hand - use height
                                 {
                                     //Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.5f; };
@@ -116,22 +116,22 @@ public class PotteryManager : MonoBehaviour
                                     float affectedHeight = Mathf.Abs(indexTipPosition.y - thumbTipPosition.y);
 
                                     Vector3 center = (indexTipPosition + thumbTipPosition) / 2f;
-                                    spline.PullAtPosition(center, effectStrength, affectedHeight, currentDeformFunction, Spline.UseAbsolutegeHeight);
+                                    spline.PullAtPosition(center, effectStrength*2f, affectedHeight, currentDeformFunction, Spline.UseAbsolutegeHeight);
                                 }
                                 break;
-                            case GESTURE.PULL1: //pull with pinch
+                            case GESTURE.PULL2: //pull with pinch
                                 {
                                    //Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.5f; };
                                     
-                                    spline.PullAtPosition(tipPosition, effectStrength, affectedArea, currentDeformFunction);
+                                    spline.PullAtPosition(tipPosition, effectStrength * 2f, affectedArea, currentDeformFunction);
                                 }
                                 break;
-                            case GESTURE.SMOOTH:
+                            case GESTURE.SMOOTH1:
                                 {
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.05f; };
                                     //spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea*0.5f, currentDeformFunction);
-                                    spline.SmoothArea(tipPosition, effectStrength, affectedArea * 0.8f, currentDeformFunction);
+                                    spline.SmoothArea(tipPosition, 0.5f, affectedArea * 0.4f, 8f,  currentDeformFunction);
                                 }
                                 break;
                             default:
@@ -157,23 +157,25 @@ public class PotteryManager : MonoBehaviour
                     {
                         switch (currentTool)
                         {
-                            case TOOL.PUSHTOOL:
+                            case TOOL.PUSHTOOL1:
                                 {
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 0.8f); };
                                     spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea/2, currentDeformFunction, true);
                                 }
                                 break;
-                            case TOOL.PULLTOOL:
+                            case TOOL.PULLTOOL1:
                                 {
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 1f); };
                                     spline.PullAtPosition(tipPosition, effectStrength*2, affectedArea, currentDeformFunction, true);
                                 }
                                 break;
-                            case TOOL.SMOOTHTOOL:
+                            case TOOL.SMOOTHTOOL1:
                                 {
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input); };
                                     //reduced affected area
-                                    spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea * 0.2f, currentDeformFunction);
+                                    //spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea * 0.2f, currentDeformFunction);
+                                    spline.SmoothArea(tipPosition, 0.5f, affectedArea * 0.5f, 8f, currentDeformFunction);
+
                                 }
                                 break;
                         }
@@ -236,7 +238,7 @@ public class PotteryManager : MonoBehaviour
     {
         if(hands.Count > 1)
         {
-            return GESTURE.SMOOTH;
+            return GESTURE.SMOOTH1;
         }
         //calculate pinch-angle
         Vector3 indexTipPosition = handController.transform.localScale.x * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
@@ -261,13 +263,13 @@ public class PotteryManager : MonoBehaviour
         //1.1 is approximated value, possibly not best value for everyone
 
         if (angle > 1.1f) {
-            return GESTURE.PULL;
+            return GESTURE.PULL1;
         } else {
             if (hands[0].PinchStrength > 0.5f || hands[1].PinchStrength > 0.5f) {
                 return GESTURE.PULL1;
             }
             else {
-                return GESTURE.PUSH;
+                return GESTURE.PUSH1;
             }
         }
         
@@ -281,7 +283,7 @@ public class PotteryManager : MonoBehaviour
     {
         if (Input.GetKey("1"))
         {
-            currentTool = TOOL.PUSHTOOL;
+            currentTool = TOOL.PUSHTOOL1;
             handController.toolModel = toolModels[0];
             Debug.Log("Push Tool Selected");
 
@@ -289,14 +291,14 @@ public class PotteryManager : MonoBehaviour
         }
         if (Input.GetKey("2"))
         {
-            currentTool = TOOL.PULLTOOL;
+            currentTool = TOOL.PULLTOOL1;
             handController.toolModel = toolModels[1];
             Debug.Log("Pull Tool Selected");
             handController.destroyCurrentTools();
         }
         if (Input.GetKey("3"))
         {
-            currentTool = TOOL.SMOOTHTOOL;
+            currentTool = TOOL.SMOOTHTOOL1;
             handController.toolModel = toolModels[2];
             Debug.Log("Smoothing Tool Selected");
             handController.destroyCurrentTools();

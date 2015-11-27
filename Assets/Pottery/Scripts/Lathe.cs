@@ -124,7 +124,7 @@ public class Lathe : MonoBehaviour
             mesh.triangles = triangles;
 
             Renderer renderer = gameObject.GetComponent<MeshRenderer>();
-            renderer.material = mat;
+            //renderer.material = mat;
             mesh.RecalculateNormals();
         }
 

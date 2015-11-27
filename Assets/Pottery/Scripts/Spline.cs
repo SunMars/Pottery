@@ -11,6 +11,8 @@ public class Spline
 {
     public const bool UsePercentageHeight = false;
     public const bool UseAbsolutegeHeight = true;
+    public const float minRadius = 0.03f;
+    public const float maxRadius = 0.8f;
 
     //public float pushthreshold;
     //public float pushFalloff;
@@ -81,8 +83,20 @@ public class Spline
     internal float DistanceToPoint(Vector3 point)
     {
         // get corresponding spline vertex
-        int vertexIndex = getCorrespondingVertex(point.y);
-
+        int vertexIndex;
+        if(point.y > spline[spline.Length-1].y && point.y < 1.5f * spline[spline.Length - 1].y)
+        {
+            vertexIndex = spline.Length - 2;
+            // hoovering close over clay object
+            return Vector3.Distance(new Vector3(0f, point.y, 0f), point) - Vector3.Distance(new Vector3(0f, spline[vertexIndex].y, 0f), spline[vertexIndex]);
+        }
+        if (point.y < spline[0].y && point.y > -0.2f)
+        {
+            vertexIndex = 1;
+            // hoovering close over clay object
+            return Vector3.Distance(new Vector3(0f, point.y, 0f), point) - Vector3.Distance(new Vector3(0f, spline[vertexIndex].y, 0f), spline[vertexIndex]);
+        }
+        vertexIndex = getCorrespondingVertex(point.y);
         // compare vertex with given point
         return Vector3.Distance(new Vector3(0f, point.y, 0f), point) - Vector3.Distance(new Vector3(0f, point.y, 0f), spline[vertexIndex]);
     }
@@ -164,7 +178,7 @@ public class Spline
     /// <param name="affectedArea"></param>
     /// <param name="smoothProfileFunc"></param>
     /// <param name="absoluteHeight"></param>
-    internal void SmoothArea(Vector3 areaCenter, float effectStrength, float affectedArea, Func<float, float> smoothProfileFunc, bool absoluteHeight = Spline.UsePercentageHeight)
+    internal void SmoothArea(Vector3 areaCenter, float effectStrength, float affectedArea, float vertexSmoothRange, Func<float, float> smoothProfileFunc, bool absoluteHeight = Spline.UsePercentageHeight)
     {
         // calculate number of affected vertices,first and last affected vertex
         float affectedVertices;
@@ -205,10 +219,10 @@ public class Spline
                 newSplinePart[i] = new Vector3();
                 continue;
             }
-            newSplinePart[i] = getSmoothedVertex(startVertex + i, smoothProfileFunc);
+            newSplinePart[i] = getSmoothedVertex(startVertex + i, vertexSmoothRange, smoothProfileFunc);
             float dif = newSplinePart[i].z - spline[startVertex + i].z;
             // old point +- fraction of dif between old and new point
-            newSplinePart[i].z = spline[startVertex + i].z + dif * smoothprofile[i];
+            newSplinePart[i].z = spline[startVertex + i].z + dif * smoothprofile[i]*effectStrength;
         }
 
         // apply effect to spline
@@ -238,9 +252,9 @@ public class Spline
         return res;
     }
 
-    private Vector3 getSmoothedVertex(int vertexIndex, Func<float, float> smoothProfileFunc)
+    private Vector3 getSmoothedVertex(int vertexIndex, float affectedVertices, Func<float, float> smoothProfileFunc)
     {
-        float affectedVertices = spline.Length * 0.1f;
+        //float affectedVertices = spline.Length * 0.1f; 
         if (affectedVertices % 2 == 0)
             affectedVertices += 1;
         // generate a smoothprofile
@@ -255,16 +269,22 @@ public class Spline
         //accumulate surounding spline-vertices
         float accuValues = 0;
         float accuCount = 0; //extra value, if smooth near object borders, endVertex-startVertex does not work
-        int startVertex = (int)(affectedVertices - 1) / 2;
-        for (int i = startVertex; i < startVertex + affectedVertices-1 ; i++)
+        int startVertex = vertexIndex - (int)(affectedVertices - 1) / 2;
+        //for (int i = startVertex; i < vertexIndex + (int)(affectedVertices+1) / 2; i++)
+        for (int i = 0; i < affectedVertices; i++)
         {
             //avoid vertices with radius 0
-            if (i < 1 || i > spline.Length - 1)
+            if (i+ startVertex < 1 || i+ startVertex > spline.Length - 1)
             {
                 continue;
             }
-            accuValues += spline[i].z * smoothprofile[i - startVertex];
-            accuCount += smoothprofile[i - startVertex];
+            
+            accuValues += spline[i+startVertex].z * smoothprofile[i];
+            accuCount += smoothprofile[i];
+            /*
+            accuValues += spline[i+startVertex].z ;
+            accuCount += 1;*/
+            
         }
 
         //todo apply effect on nearby vertices as well
@@ -333,17 +353,27 @@ public class Spline
             {
                 continue;
             }
-            if (pull)
+            float sign = 1f;
+            if (!pull)
             {
-                spline[i].z += spline[i].z * strengthOfDeformation * deformFactors[i - startVertex];
+                sign = -1f; 
+            }
+
+            
+            if (spline[i].z > minRadius * 1.5f && spline[i].z < maxRadius * 0.9f  ) {
+                //Debug.Log("deform abs");
+
+                spline[i].z += sign*strengthOfDeformation * deformFactors[i - startVertex];
             }
             else
             {
-                //spline[i].z -= spline[i].z * strengthOfDeformation * deformFactors[i - startVertex];
-                spline[i].z -= strengthOfDeformation * deformFactors[i - startVertex];
-            }
-            
+                //Debug.Log("deform percentage");
 
+                spline[i].z += sign*spline[i].z * strengthOfDeformation * deformFactors[i - startVertex] * 3f;
+            }
+
+            spline[i].z = Mathf.Min(spline[i].z, maxRadius);
+            spline[i].z = Mathf.Max(spline[i].z, minRadius);
         }
     }
 
