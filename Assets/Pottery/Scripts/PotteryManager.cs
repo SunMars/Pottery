@@ -165,7 +165,7 @@ public class PotteryManager : MonoBehaviour
                                 break;
                             case TOOL.PULLTOOL:
                                 {
-                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
+                                    Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 1f); };
                                     spline.PullAtPosition(tipPosition, effectStrength*2, affectedArea, currentDeformFunction, true);
                                 }
                                 break;
@@ -284,18 +284,22 @@ public class PotteryManager : MonoBehaviour
             currentTool = TOOL.PUSHTOOL;
             handController.toolModel = toolModels[0];
             Debug.Log("Push Tool Selected");
+
+            handController.destroyCurrentTools();
         }
         if (Input.GetKey("2"))
         {
             currentTool = TOOL.PULLTOOL;
             handController.toolModel = toolModels[1];
             Debug.Log("Pull Tool Selected");
+            handController.destroyCurrentTools();
         }
         if (Input.GetKey("3"))
         {
             currentTool = TOOL.SMOOTHTOOL;
             handController.toolModel = toolModels[2];
             Debug.Log("Smoothing Tool Selected");
+            handController.destroyCurrentTools();
         }
         if (Input.GetKey("4"))
         {

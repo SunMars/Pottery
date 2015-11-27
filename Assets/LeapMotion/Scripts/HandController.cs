@@ -329,6 +329,16 @@ public class HandController : MonoBehaviour {
       all_tools.Remove(ids_to_check[i]);
     }
   }
+    //always call when changing the tool prefab
+    public void destroyCurrentTools()
+    {
+        List<int> ids_to_check = new List<int>(tools_.Keys);
+        for (int i = 0; i < ids_to_check.Count; ++i)
+        {
+            Destroy(tools_[ids_to_check[i]].gameObject);
+            tools_.Remove(ids_to_check[i]);
+        }
+    }
 
   /** Returns the Leap Controller instance. */
   public Controller GetLeapController() {
