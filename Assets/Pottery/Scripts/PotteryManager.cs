@@ -22,7 +22,7 @@ public class PotteryManager : MonoBehaviour
 
     private Spline spline;
     private Controller m_leapController;
-    public int exportId;
+    
     
     private TOOL currentTool;
 
@@ -70,7 +70,6 @@ public class PotteryManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        getInput();
         Frame frame = m_leapController.Frame();
 
         // Guess what the user wants to do
@@ -275,48 +274,32 @@ public class PotteryManager : MonoBehaviour
         
     }
 
-    
-    /// <summary>
-    /// method for getting the input of the current frame
-    /// </summary>
-    private void getInput()
+    public void setPushTool()
     {
-        if (Input.GetKeyUp("1"))
-        {
-            currentTool = TOOL.PUSHTOOL1;
-            handController.toolModel = toolModels[0];
-            Debug.Log("Push Tool Selected");
-            StartCoroutine(uiManager.showInfoText("Push Tool selected"));
+        currentTool = TOOL.PUSHTOOL1;
+        handController.toolModel = toolModels[0];
+        Debug.Log("Push Tool Selected");
+        handController.destroyCurrentTools();
+    }
+    public void setPullTool()
+    {
+        currentTool = TOOL.PULLTOOL1;
+        handController.toolModel = toolModels[1];
+        Debug.Log("Pull Tool Selected");
+        handController.destroyCurrentTools();
+    }
 
-            handController.destroyCurrentTools();
-        }
-        if (Input.GetKeyUp("2"))
-        {
-            currentTool = TOOL.PULLTOOL1;
-            handController.toolModel = toolModels[1];
-            Debug.Log("Pull Tool Selected");
-            StartCoroutine(uiManager.showInfoText("Pull Tool selected"));
-            handController.destroyCurrentTools();
-        }
-        if (Input.GetKeyUp("3"))
-        {
-            currentTool = TOOL.SMOOTHTOOL1;
-            handController.toolModel = toolModels[2];
-            Debug.Log("Smoothing Tool Selected");
-            StartCoroutine(uiManager.showInfoText("Smoothing Tool selected"));
-            handController.destroyCurrentTools();
-        }
-        if (Input.GetKeyUp("4"))
-        {
-            this.DebugdrawLine = true;
-        }
-		//Press E to export the current spline 
-        if (Input.GetKeyUp("e"))
-        {
-            Export.exportSpline(spline.getSpline(), exportId.ToString());
-            exportId += 1;
-            StartCoroutine(uiManager.showInfoText("Spline Exported to Documents/Pottery as: " + exportId + ".csv"));
-        }
+    public void setSmoothingTool()
+    {
+        currentTool = TOOL.SMOOTHTOOL1;
+        handController.toolModel = toolModels[2];
+        Debug.Log("Smoothing Tool Selected");
+        handController.destroyCurrentTools();
+    }
+
+    public void setDebugBool()
+    {
+        this.DebugdrawLine = true;
     }
 
     internal void resetAll()

@@ -10,7 +10,13 @@ public class UIManager : MonoBehaviour {
     public List<Sprite> targetImages;
     public UnityEngine.UI.Image targetCanvas;
     public UnityEngine.UI.Text infoText;
+    public UnityEngine.UI.InputField userIDInput;
+    public GameObject startOverlay;
     public int targetCount = 4;
+    public int exportId;
+
+    private String userID;
+    private bool startModus;
 
     enum MODE
     {
@@ -27,7 +33,7 @@ public class UIManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        
+        startModus = true;
         targetCanvas.transform.parent.gameObject.SetActive(false);
         infoText.enabled = false;
         startTime = Time.time;
@@ -40,8 +46,12 @@ public class UIManager : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
-        getInput();
+    void Update ()
+    {
+        if(startModus == false)
+        { 
+            getKeyInput();
+        }
     }
 
     private void initLists()
@@ -51,7 +61,7 @@ public class UIManager : MonoBehaviour {
         userTimes = new List<float>();
     }
 
-    private void getInput()
+    private void getKeyInput()
     {
             //Press space to get to the next step 
         if (Input.GetKeyUp("space") && targetstep != -1)
@@ -71,7 +81,6 @@ public class UIManager : MonoBehaviour {
             if (targetstep == targetCount) {
                 targetstep = 0;
                 targetCanvas.sprite = targetImages[targetstep];
-                //targetCanvas.transform.parent.gameObject.SetActive(true);
                 Debug.Log("finished!");
                 compareSpline();
                 
@@ -115,6 +124,31 @@ public class UIManager : MonoBehaviour {
             Export.exportSTL(exportSTLObject.mesh, objectName);
             StartCoroutine(showInfoText("Object exported to Documents/Pottery as " + objectName + ".stl"));
         }
+        if (Input.GetKeyUp("e"))
+        {
+            Export.exportSpline(manager.getSpline().getSpline(), exportId.ToString());
+            exportId += 1;
+            StartCoroutine(showInfoText("Spline Exported to Documents/Pottery as: " + exportId + ".csv"));
+        }
+        if (Input.GetKeyUp("1"))
+        {
+            manager.setPushTool();
+            StartCoroutine(showInfoText("Push Tool selected"));
+        }
+        if (Input.GetKeyUp("2"))
+        {
+            manager.setPullTool();
+            StartCoroutine(showInfoText("Pull Tool selected"));
+        }
+        if (Input.GetKeyUp("3"))
+        {
+            manager.setSmoothingTool();
+            StartCoroutine(showInfoText("Smoothing Tool selected"));
+        }
+        if (Input.GetKeyUp("4"))
+        {
+            manager.setDebugBool();
+        }
     }
 
     private float getAllTimes()
@@ -148,7 +182,6 @@ public class UIManager : MonoBehaviour {
 
     public void compareSpline()
     {
-        String userID = "result" + Random.Range(0, 100).ToString();
         SplineComparison.compare(targetSplines, userSplines, userTimes, userID);
         StartCoroutine(showInfoText("Target Modus finished. Result is saved in Documents as: " + userID + ".csv"));
         //todo reset all
@@ -168,5 +201,22 @@ public class UIManager : MonoBehaviour {
         infoText.text = text;
         yield return new WaitForSeconds(3f);
         infoText.enabled = false;
+    }
+
+    /// <summary>
+    /// called by UI.button, if pressed
+    /// </summary>
+    public void setUserID()
+    {
+        if (userIDInput.text == "")
+        {
+            return;
+        }
+        else
+        {
+            userID = userIDInput.text;
+            startOverlay.SetActive(false);
+            startModus = false;
+        }
     }
 }
