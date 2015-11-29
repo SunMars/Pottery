@@ -286,6 +286,7 @@ public class PotteryManager : MonoBehaviour
             currentTool = TOOL.PUSHTOOL1;
             handController.toolModel = toolModels[0];
             Debug.Log("Push Tool Selected");
+            StartCoroutine(uiManager.showInfoText("Push Tool selected"));
 
             handController.destroyCurrentTools();
         }
@@ -294,6 +295,7 @@ public class PotteryManager : MonoBehaviour
             currentTool = TOOL.PULLTOOL1;
             handController.toolModel = toolModels[1];
             Debug.Log("Pull Tool Selected");
+            StartCoroutine(uiManager.showInfoText("Pull Tool selected"));
             handController.destroyCurrentTools();
         }
         if (Input.GetKeyUp("3"))
@@ -301,6 +303,7 @@ public class PotteryManager : MonoBehaviour
             currentTool = TOOL.SMOOTHTOOL1;
             handController.toolModel = toolModels[2];
             Debug.Log("Smoothing Tool Selected");
+            StartCoroutine(uiManager.showInfoText("Smoothing Tool selected"));
             handController.destroyCurrentTools();
         }
         if (Input.GetKeyUp("4"))
@@ -312,6 +315,7 @@ public class PotteryManager : MonoBehaviour
         {
             Export.exportSpline(spline.getSpline(), exportId.ToString());
             exportId += 1;
+            StartCoroutine(uiManager.showInfoText("Spline Exported to Documents/Pottery as: " + exportId + ".csv"));
         }
     }
 
