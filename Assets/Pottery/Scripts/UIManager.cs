@@ -29,7 +29,7 @@ public class UIManager : MonoBehaviour {
     private List<Spline> targetSplines;
     private List<Spline> userSplines;
     private List<float> userTimes;
-    private int targetstep;
+    private int targetStep;
 
 	// Use this for initialization
 	void Start () {
@@ -41,7 +41,7 @@ public class UIManager : MonoBehaviour {
         manager = this.transform.parent.gameObject.GetComponent<PotteryManager>();
         targetSplines = new List<Spline>();
         importSplines();
-        targetstep = -1;
+        targetStep = -1;
 
     }
 
@@ -56,7 +56,7 @@ public class UIManager : MonoBehaviour {
 
     private void initLists()
     {
-        targetstep = 0;
+        targetStep = 0;
         userSplines = new List<Spline>();
         userTimes = new List<float>();
     }
@@ -64,10 +64,10 @@ public class UIManager : MonoBehaviour {
     private void getKeyInput()
     {
             //Press space to get to the next step 
-        if (Input.GetKeyUp("space") && targetstep != -1)
+        if (Input.GetKeyUp("space") && targetStep != -1)
         {
             manager.resetAll();
-            if (targetstep == 0)
+            if (targetStep == 0)
             {
                 userTimes.Add(Time.time - startTime);
             }
@@ -77,10 +77,10 @@ public class UIManager : MonoBehaviour {
             }
             userSplines.Add(manager.getSpline());
 
-            targetstep += 1;
-            if (targetstep == targetCount) {
-                targetstep = 0;
-                targetCanvas.sprite = targetImages[targetstep];
+            targetStep += 1;
+            if (targetStep == targetCount) {
+                targetStep = 0;
+                targetCanvas.sprite = targetImages[targetStep];
                 Debug.Log("finished!");
                 compareSpline();
                 
@@ -89,33 +89,33 @@ public class UIManager : MonoBehaviour {
 
             Debug.Log("next step!");
             //next image
-            targetCanvas.sprite = targetImages[targetstep];
+            targetCanvas.sprite = targetImages[targetStep];
         }
 
         // reset
         if (Input.GetKeyUp("r"))
         {
-            targetstep = 0;
-            targetCanvas.sprite = targetImages[targetstep];
+            targetStep = 0;
+            targetCanvas.sprite = targetImages[targetStep];
 
             manager.resetAll();
             StartCoroutine(showInfoText("Object reseted"));
         }
         if (Input.GetKeyUp("f"))
         {
-            if(targetstep == -1)
+            if(targetStep == -1)
             {
                 initLists();
                 targetCanvas.sprite = targetImages[0];
                 targetCanvas.transform.parent.gameObject.SetActive(true);
                 manager.resetAll();
-                StartCoroutine(showInfoText("Target Modus"));
+                StartCoroutine(showInfoText("Target Mode"));
             } else {
-                targetstep = -1;
+                targetStep = -1;
                 targetCanvas.sprite = targetImages[0];
                 targetCanvas.transform.parent.gameObject.SetActive(false);
                 manager.resetAll();
-                StartCoroutine(showInfoText("Freeform Modus"));
+                StartCoroutine(showInfoText("Free Form Mode"));
             }
         }
         if (Input.GetKeyUp("s"))
@@ -184,7 +184,7 @@ public class UIManager : MonoBehaviour {
     {
         SplineComparison.compare(targetSplines, userSplines, userTimes, userID);
         StartCoroutine(showInfoText("Target Modus finished. Result is saved in Documents as: " + userID + ".csv"));
-        //todo reset all
+        //TODO reset all
         initLists();
         manager.resetAll();
     }
