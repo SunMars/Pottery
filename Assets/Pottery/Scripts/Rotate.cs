@@ -7,8 +7,10 @@ public class Rotate : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        /*
         Debug.Log(Time.deltaTime.ToString());
         Debug.Log(Time.fixedDeltaTime.ToString());
+        */
     }
 	
 	// Update is called once per frame

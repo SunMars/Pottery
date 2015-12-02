@@ -12,6 +12,8 @@ public class Lathe : MonoBehaviour
     protected LathedObject lathedObject;
     [Range(3, 512)]
     public int sections;
+    [Range(0f, 1f)]
+    public float thickness;
 
     private Mesh mesh;
     private List<Vector3> spline;
@@ -26,18 +28,21 @@ public class Lathe : MonoBehaviour
         mesh = new Mesh();
         meshFilter.mesh = mesh;
 
-        lathedObject = new LathedObject(spline, gameObject, sections, material, mesh, meshFilter);
+        lathedObject = new LathedObject(spline, thickness, gameObject, sections, material, mesh, meshFilter);
     }
 
     public void init(List<Vector3> generatedSpline)
     {
         if (spline == null)
+        {
             spline = generatedSpline;
+        }
+
         MeshFilter meshFilter = this.GetComponent<MeshFilter>();
         mesh = new Mesh();
         meshFilter.mesh = mesh;
 
-        lathedObject = new LathedObject(spline, gameObject, sections, material, mesh, meshFilter);
+        lathedObject = new LathedObject(spline, thickness, gameObject, sections, material, mesh, meshFilter);
     }
 
     /// <summary>
@@ -71,6 +76,7 @@ public class Lathe : MonoBehaviour
         // private vars --------------
         // needed for mesh creating
         private Mesh mesh;
+        private List<Vector3> skinnedSpline;
         private List<Vector3> vertices;
         private List<Vector2> uv;
         private int[] triangles;
@@ -82,9 +88,10 @@ public class Lathe : MonoBehaviour
         /// </summary>
         /// <param name="spline">A spline as an array of <c>Vector3</c> elements</param>
         /// <param name="gameObject">The empty <c>GameObject</c> on which the lathe mesh will be drawn</param>
-        public LathedObject(List<Vector3> spline, GameObject gameObject, int sections, Material mat, Mesh mesh, MeshFilter meshFilter)
+        public LathedObject(List<Vector3> spline, float thickness, GameObject gameObject, int sections, Material mat, Mesh mesh, MeshFilter meshFilter)
         {
-            this.spline = spline;
+            this.skinnedSpline = getSkinnedSpline(spline, thickness);
+            this.spline = this.skinnedSpline; 
             this.gameObject = gameObject;
             this.sections = sections;
             this.mat = mat;
@@ -100,9 +107,14 @@ public class Lathe : MonoBehaviour
             createMesh();
         }
 
+        /// <summary>
+        /// Get the UV-coordinates List for the generated mesh.
+        /// </summary>
+        /// <param name="vertices">The list of all vertices of the generated mesh.</param>
+        /// <returns>A <c>Vector2</c> List of the UV coordinates.</returns>
         private List<Vector2> getUVList(List<Vector3> vertices)
         {
-            List<Vector2> uvList = new List<Vector2> { };
+            List<Vector2> uvList = new List<Vector2>() { };
 
             for (int i = 0; i < vertices.Count; i++)
             {
@@ -115,7 +127,30 @@ public class Lathe : MonoBehaviour
         }
 
         /// <summary>
-        /// Creates the mesh and assigns a material.
+        /// Create a new spline for generating a mesh with a defined thickness.
+        /// </summary>
+        /// <param name="spline">The given spline with <c>Vector3(0, 0, 0)</c> as starting point.</param>
+        /// <param name="thickness">The thickness the mesh should be created with.</param>
+        /// <returns>A spline for lathing a mesh with a defined thickness.</returns>
+        private List<Vector3> getSkinnedSpline(List<Vector3> spline, float thickness)
+        {
+            List<Vector3> skinnedSpline = spline;
+            int lastVertexIndex = 0;
+
+            for (int i = spline.Count - 1; spline[i].y > thickness; i--)
+            {
+                skinnedSpline.Add(new Vector3(0, spline[i].y, spline[i].z - thickness));
+                lastVertexIndex = i;
+            }
+
+            skinnedSpline.Add(new Vector3(0, thickness, spline[lastVertexIndex].z - thickness)); // add the 
+            skinnedSpline.Add(new Vector3(0, thickness, 0)); // add the last vertex on the y-axis
+
+            return skinnedSpline;
+        }
+
+        /// <summary>
+        /// Creates the mesh.
         /// </summary>
         private void createMesh()
         {
@@ -124,8 +159,7 @@ public class Lathe : MonoBehaviour
             mesh.triangles = triangles;
 
             Renderer renderer = gameObject.GetComponent<MeshRenderer>();
-            //renderer.material = mat;
-            mesh.RecalculateNormals();
+            mesh.RecalculateNormals(); // TODO maybe we need our own solution
         }
 
         /// <summary>
@@ -152,11 +186,17 @@ public class Lathe : MonoBehaviour
             List<int> triangleArray = new List<int>();
 
             // TODO Does not work for some section values. E.g. 17, 23, 64
-            for (int i = 0; i < verticesList2D.Count - 1; i++)
+            for (int i = 0; i < verticesList2D.Count - 1; i++) // iterate trough all spline vertices
             {
+                if(verticesList2D[i][0].x == 0)
+                {
+                    Vector3 v = verticesList2D[i][0];
+                    Debug.Log("Vertex with index " + i + " has (" + v.x + ", " + v.y + ", " + v.z + ")");
+                }
+
                 int vIndex = i * sections; // index of the "spline" vertex
 
-                for (int j = 0; j < sections; j++)
+                for (int j = 0; j < sections; j++) // iterate trough all vertices of this section
                 {
                     int vertexIndex = vIndex + j; // Index of the vertex in the current row
 
