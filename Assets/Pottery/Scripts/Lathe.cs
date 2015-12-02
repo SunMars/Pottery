@@ -236,7 +236,7 @@ public class Lathe : MonoBehaviour
         }
 
         /// <summary>
-        /// Get all a 2D-list of all vertices for the generated lathed mesh, when the sections are already defined.
+        /// Get a 2D-list of all vertices for the generated lathed mesh, when the sections are already defined.
         /// </summary>
         /// <param name="spline">The spline from which the lathed object will be created.</param>
         /// <returns>A 2D-list of all mesh vertices.
