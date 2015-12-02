@@ -352,6 +352,7 @@ MonoBehaviour:
   userIDInput: {fileID: 1237029776}
   startOverlay: {fileID: 2015202113}
   targetCount: 4
+  exportId: 0
 --- !u!1001 &707930047
 Prefab:
   m_ObjectHideFlags: 0
@@ -547,9 +548,9 @@ MonoBehaviour:
   ClayResolution: 60
   ClayHeight: 1.5
   ClayRadius: .600000024
-  ClayVariance: .100000001
+  ClayVariance: .00999999978
   effectStrength: .200000003
-  affectedArea: .300000012
+  affectedArea: .200000003
   uiManager: {fileID: 698792232}
   toolModels:
   - {fileID: 11476104, guid: 229f227e0f3959e4aba8da01aa2c149f, type: 2}
@@ -557,7 +558,6 @@ MonoBehaviour:
   - {fileID: 11430772, guid: 1a73011d31045f045807d20df6145783, type: 2}
   lineRenderer: {fileID: 578735031}
   fingerTipSphere: {fileID: 1513242490}
-  exportId: 1
   DebugdrawLine: 0
 --- !u!4 &884631264
 Transform:

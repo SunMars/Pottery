@@ -40,7 +40,7 @@ public class Spline
         // smooth sline with variance
         if(variance > 0f)
         {
-            for(int i =0; i < spline.Length - 1; i++)
+            for(int i =1; i < spline.Length - 1; i++)
             {
                 this.SmoothAtPosition(spline[i], 0.5f, 0.2f, delegate (float input) { return Mathf.Sin(input); });
             }
@@ -79,7 +79,7 @@ public class Spline
     /// Checks, if given position in in spline
     /// </summary>
     /// <param name="point">point in scene</param>
-    /// <returns>distance between spline and given point\nDIST<0 means point is in spline\nDIST=0 means point is on spline\nDIST>0 means point is outside of spline</returns>
+    /// <returns>distance between spline and given point\nDIST &lt0 means point is in spline\nDIST=0 means point is on spline\nDIST &gt0 means point is outside of spline</returns>
     internal float DistanceToPoint(Vector3 point)
     {
         // get corresponding spline vertex
@@ -399,8 +399,8 @@ public class Spline
 
     private int getCorrespondingVertex(float pointheight)
     {
-        int vertexIndex = 0;
-        for (int i = 0; i < spline.Length; i++)
+        int vertexIndex = 1;
+        for (int i = 1; i < spline.Length-1; i++)
         {
             if (spline[i].y < pointheight)
             {
