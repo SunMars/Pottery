@@ -118,7 +118,7 @@ public class PotteryManager : MonoBehaviour
 
                                 float affectedHeight = Mathf.Abs(indexTipPosition.y - thumbTipPosition.y);
 
-                                Vector3 center = (indexTipPosition + thumbTipPosition) / 2f;
+                                Vector3 center = (tipPosition + thumbTipPosition) / 2f;
                                 spline.PullAtPosition(center, effectStrength * 2f, affectedHeight, currentDeformFunction, Spline.UseAbsolutegeHeight);
                             }
                             break;
@@ -258,6 +258,7 @@ public class PotteryManager : MonoBehaviour
         if (hands[0].Confidence < 0.2f) {
             Debug.Log("Confidence" + hands[0].Confidence);
             //TODO ignore gesture
+            return GESTURE.NONE;
         }
             
 

@@ -84,7 +84,7 @@ public class Spline
     {
         // get corresponding spline vertex
         int vertexIndex;
-        if(point.y > spline[spline.Length-1].y && point.y < 1.5f * spline[spline.Length - 1].y)
+        if(point.y > spline[spline.Length-1].y && point.y < 1.5f * spline[spline.Length - 2].y)
         {
             vertexIndex = spline.Length - 2;
             // hoovering close over clay object

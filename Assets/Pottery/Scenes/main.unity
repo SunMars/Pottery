@@ -439,7 +439,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -.300000012
+      value: -.449999988
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: c9f2277f2b4414ff9abf05e783890171, type: 2}
       propertyPath: m_LocalPosition.z
@@ -619,8 +619,8 @@ MonoBehaviour:
   latheController: {fileID: 2033726155}
   handController: {fileID: 120162990}
   ClayResolution: 60
-  ClayHeight: 1.5
-  ClayRadius: .600000024
+  ClayHeight: 1.20000005
+  ClayRadius: .5
   ClayVariance: .00999999978
   effectStrength: .200000003
   affectedArea: .200000003
@@ -708,7 +708,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: 0c9fce6c90c9a9446bd7fc3b4b99ba63, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
