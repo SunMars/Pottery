@@ -29,11 +29,11 @@ public class PotteryManager : MonoBehaviour
 
     public bool DebugdrawLine;
 
-    enum MODUS
+    enum MODE
     {
-        HANDMODUS,
-        TOOLMODUS,
-        HUDMODUS,
+        HANDMODE,
+        TOOLMODE,
+        HUDMODE,
         NONE
     }
     enum TOOL
@@ -52,6 +52,15 @@ public class PotteryManager : MonoBehaviour
         PULL2,
         SMOOTH1,
         NONE
+    }
+    enum LEAPHAND
+    {
+        INDEX,
+        MIDDLE,
+        PINKY,
+        RING,
+        THUMB,
+        PALM
     }
 
     // Use this for initialization
@@ -77,22 +86,13 @@ public class PotteryManager : MonoBehaviour
         // Guess what the user wants to do
         switch (checkIntend(frame))
         {
-            case MODUS.HANDMODUS: // TODO English please
+            case MODE.HANDMODE:
                 {
                     /*
-                    // Check if Hand touches clay
-                    // TODO: get closest finger
-                    Vector3 tipPosition = frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-                    tipPosition *= handController.transform.localScale.x; //scale position with hand movement
-                    tipPosition += handController.transform.position; 
-
                     // [Debug] moves white sphere to tip Position
                     fingerTipSphere.transform.position = tipPosition;
+                    */
 
-                    float splineDistToPoint = spline.DistanceToPoint(tipPosition);
-
-                    if (splineDistToPoint <= 0)
-                    {*/
                     // get current gesture
 
                     var currentGesture = getCurrentGesture(frame.Hands);
@@ -104,7 +104,7 @@ public class PotteryManager : MonoBehaviour
                                 Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
                                 // Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.1f; };
                                 // v-- uses the percentage number of the vertices
-                                spline.PushAtPosition(tipPosition, spline.DistanceToPoint(tipPosition), effectStrength, affectedArea, currentDeformFunction);
+                                spline.PushAtPosition(tipPosition, spline.DistanceToMesh(tipPosition), effectStrength, affectedArea, currentDeformFunction);
                             }
                             break;
 
@@ -112,11 +112,9 @@ public class PotteryManager : MonoBehaviour
                             {
                                 // Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 2f); };
                                 Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.5f; };
-
-                                Vector3 indexTipPosition = handController.transform.localScale.x * frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-                                indexTipPosition += handController.transform.position;
-                                Vector3 thumbTipPosition = handController.transform.localScale.x * frame.Hands[0].Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
-                                thumbTipPosition += handController.transform.position;
+                                
+                                Vector3 indexTipPosition = getScaledPosition(frame.Hands[0], LEAPHAND.INDEX); 
+                                Vector3 thumbTipPosition = getScaledPosition(frame.Hands[0], LEAPHAND.THUMB);
 
                                 float affectedHeight = Mathf.Abs(indexTipPosition.y - thumbTipPosition.y);
 
@@ -136,7 +134,7 @@ public class PotteryManager : MonoBehaviour
                             {
                                 Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 1f; };
                                 // spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea*0.5f, currentDeformFunction);
-                                spline.SmoothArea(tipPosition, 0.5f, affectedArea * 0.4f, 8f, currentDeformFunction);
+                                spline.SmoothArea(tipPosition, 0.2f, affectedArea * 0.3f, 8f, currentDeformFunction);
                             }
                             break;
                         case GESTURE.NONE:
@@ -151,7 +149,7 @@ public class PotteryManager : MonoBehaviour
                 }
                 break;
 
-            case MODUS.TOOLMODUS:
+            case MODE.TOOLMODE:
                 {
                     //Get TipPosition of the Tool
                     Vector3 tipPosition = frame.Tools[0].TipPosition.ToUnityScaled(false);
@@ -162,7 +160,7 @@ public class PotteryManager : MonoBehaviour
                     //fingerTipSphere.transform.position = tipPosition;
                     //thumbTipSphere.transform.position = new Vector3(0f,0f,0f);
 
-                    float splineDistToPoint = spline.DistanceToPoint(tipPosition);
+                    float splineDistToPoint = spline.DistanceToMesh(tipPosition);
 
                     if (splineDistToPoint <= 0)
                     {
@@ -198,7 +196,7 @@ public class PotteryManager : MonoBehaviour
                     }
                 }
                 break;
-            case MODUS.HUDMODUS:
+            case MODE.HUDMODE:
                 //TODO
                 break;
             default:
@@ -229,23 +227,23 @@ public class PotteryManager : MonoBehaviour
         }
     }
 
-    private MODUS checkIntend(Frame frame)
+    private MODE checkIntend(Frame frame)
     {
         // if palm faces away from Object -> HudMode
         // if Tool visible -> ToolMode
         if (frame.Tools.Count > 0)
         {
             //Debug.Log("checkIntend has detected a Tool!");
-            return MODUS.TOOLMODUS; // TODO English please
+            return MODE.TOOLMODE; // TODO English please
         }
         // if Hand visible -> HandMode
         if (frame.Hands.Count > 0)
         {
-            return MODUS.HANDMODUS;
+            return MODE.HANDMODE;
         }
         else // User does not interact with Spline
         {
-            return MODUS.NONE;
+            return MODE.NONE;
         }
     }
 
@@ -257,19 +255,16 @@ public class PotteryManager : MonoBehaviour
     /// <returns>current Gesture: Pull,Push or Smooth</returns>
     private GESTURE getCurrentGesture(HandList hands)
     {
-        if (hands[0].Confidence < 0.2f)
+        if (hands[0].Confidence < 0.2f) {
             Debug.Log("Confidence" + hands[0].Confidence);
+            //TODO ignore gesture
+        }
+            
 
         // get closest finger
         Vector3 closestFinger = getNearestFinger(hands[0]);
-        //fingerTipSphere.transform.position = closestFinger;
-
-        Vector3 thumbPosition = handController.transform.localScale.x * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
-        thumbPosition += handController.transform.position;
-        //thumbTipSphere.transform.position = thumbPosition;
-
-        Vector3 palmPosition = handController.transform.localScale.x * hands[0].PalmPosition.ToUnityScaled(false);
-        palmPosition += handController.transform.position;
+        Vector3 thumbPosition = getScaledPosition(hands[0], LEAPHAND.THUMB);
+        Vector3 palmPosition = getScaledPosition(hands[0], LEAPHAND.PALM);
 
         // is palm in obj & finger-palm-center angle ~90 degree?=>smooth
         Vector3 v1 = palmPosition - closestFinger;
@@ -282,22 +277,22 @@ public class PotteryManager : MonoBehaviour
 
         GESTURE recognizedGesture;
 
-        if (dotValue < 0.3f && dotValue > -0.3f && spline.DistanceToPoint(palmPosition) <= 0f)
+        if (dotValue < 0.3f && dotValue > -0.3f && spline.DistanceToMesh(palmPosition) <= 0.05f)
         {
             tipPosition = palmPosition;
             Debug.Log("dotValue:\t" + dotValue + "\tsmoothing");
             recognizedGesture = GESTURE.SMOOTH1;
         }
-        else if ((spline.DistanceToPoint(thumbPosition) <= 0f) && (spline.DistanceToPoint(getNearestFinger(hands[0], true)) <= 0f))
+        else if ((spline.DistanceToMesh(thumbPosition) <= 0f) && (spline.DistanceToMesh(getNearestFinger(hands[0], true)) <= 0f))
         {         // is thumb in obj? & closest in obj => pull
             tipPosition = getNearestFinger(hands[0], true);
             Debug.Log(thumbPosition + " | " + getNearestFinger(hands[0], true));
             recognizedGesture = GESTURE.PULL1;
         }
-        else if (spline.DistanceToPoint(closestFinger) < 0f)
+        else if (spline.DistanceToMesh(closestFinger) < 0f)
         {        // if closest in obj=> push
             tipPosition = getNearestFinger(hands[0]);
-            Debug.Log("push: "+ spline.DistanceToPoint(closestFinger));
+            Debug.Log("push: "+ spline.DistanceToMesh(closestFinger));
             recognizedGesture = GESTURE.PUSH1;
         }
         else
@@ -307,72 +302,33 @@ public class PotteryManager : MonoBehaviour
 
         //Debug.Log(recognizedGesture);
         return recognizedGesture;
-
-
-
-
-        /*
-        tipPosition = hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-        tipPosition *= handController.transform.localScale.x; //scale position with Hand movement
-        tipPosition += handController.transform.position;
-        if (hands.Count > 1)
-        {
-            return GESTURE.SMOOTH1;
-        }
-        //calculate pinch-angle
-        Vector3 indexTipPosition = handController.transform.localScale.x * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
-        Vector3 thumbTipPosition = handController.transform.localScale.x * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
-        //Vector3 palmPosition = handController.transform.localScale.x * hands[0].PalmPosition.ToUnityScaled(false);
-
-         v1 = palmPosition - indexTipPosition;
-         v2 = palmPosition - thumbTipPosition;
-        v1.Normalize();
-        v2.Normalize();
-        dotValue = Vector3.Dot(v1, v2);
-        if (dotValue > 1.0f)
-            dotValue = 1.0f;
-        else if (dotValue < -1.0f)
-            dotValue = -1.0f;
-
-        //scale product
-        //angle between thumb, index finger and palm
-        float angle = Mathf.Acos(dotValue / (v1.sqrMagnitude * v2.sqrMagnitude));
-
-        //if angle is bigger than 1.1-> hand is pinching
-        //1.1 is approximated value, possibly not best value for everyone
-
-        if (angle > 1.1f) {
-            return GESTURE.PULL1;
-        } else {
-            if (hands[0].PinchStrength > 0.5f || hands[1].PinchStrength > 0.5f) {
-                return GESTURE.PULL1;
-            }
-            else {
-                return GESTURE.PUSH1;
-            }
-        }
-        */
+        
     }
 
     private Vector3 getNearestFinger(Hand hand, bool ignoreThumb = false)
     {
-        //Vector3 closestFinger = hand.Fingers[0];
         int index = 0;
-        Vector3 closestFinger = Vector3.zero;// = handController.transform.localScale.x * hand.Fingers[0].TipPosition.ToUnityScaled(false)
+        Vector3 closestFinger = Vector3.zero;
+
         for (int i = 0; i < hand.Fingers.Count; i++)
         {
+            
             Vector3 tmp = handController.transform.localScale.x * hand.Fingers[i].TipPosition.ToUnityScaled(false);
             tmp += handController.transform.position;
-            if ((hand.Fingers[i].Type == Finger.FingerType.TYPE_THUMB) && !ignoreThumb)
+            
+            if (ignoreThumb)
             {
-                continue; // TODO think about optimizing the code... make it more understandable
+                // if thumb => jump to next finger
+                if (hand.Fingers[i].Type == Finger.FingerType.TYPE_THUMB)
+                    continue; // next Finger
             }
-            if (closestFinger == Vector3.zero)
+
+            if (closestFinger == Vector3.zero) 
             {
                 index = i;
                 closestFinger = tmp;
             }
-            else if (spline.DistanceToPoint(closestFinger) > spline.DistanceToPoint(tmp))
+            else if (spline.DistanceToMesh(closestFinger) > spline.DistanceToMesh(tmp))
             {
                 index = i;
                 closestFinger = tmp;
@@ -423,5 +379,48 @@ public class PotteryManager : MonoBehaviour
     internal Spline getSpline()
     {
         return spline;
+    }
+
+    private Vector3 getScaledPosition(Hand hand, LEAPHAND type)
+    {
+        Vector3 retVal;
+        // 3 steps:
+        // 1 get Leap-Coords
+        switch (type)
+        {
+            case LEAPHAND.INDEX:
+                retVal = hand.Fingers.FingerType(Finger.FingerType.TYPE_INDEX)[0].TipPosition.ToUnityScaled(false);
+                break;
+            case LEAPHAND.MIDDLE:
+                retVal = hand.Fingers.FingerType(Finger.FingerType.TYPE_MIDDLE)[0].TipPosition.ToUnityScaled(false);
+
+                break;
+            case LEAPHAND.RING:
+                retVal = hand.Fingers.FingerType(Finger.FingerType.TYPE_RING)[0].TipPosition.ToUnityScaled(false);
+
+                break;
+            case LEAPHAND.PINKY:
+                retVal = hand.Fingers.FingerType(Finger.FingerType.TYPE_PINKY)[0].TipPosition.ToUnityScaled(false);
+
+                break;
+            case LEAPHAND.THUMB:
+                retVal = hand.Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
+
+                break;
+            case LEAPHAND.PALM:
+                retVal = hand.PalmPosition.ToUnityScaled(false);
+                break;
+            default:
+                retVal = hand.Fingers.Frontmost.TipPosition.ToUnityScaled(false);
+                break;
+        }
+
+        // 2 scale with handControler
+        retVal *= handController.transform.localScale.x;
+        
+        // 3 offset with handcontroller
+        retVal += handController.transform.position;
+
+        return retVal;
     }
 }

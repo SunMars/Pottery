@@ -80,7 +80,7 @@ public class Spline
     /// </summary>
     /// <param name="point">point in scene</param>
     /// <returns>distance between spline and given point\nDIST &lt0 means point is in spline\nDIST=0 means point is on spline\nDIST &gt0 means point is outside of spline</returns>
-    internal float DistanceToPoint(Vector3 point)
+    internal float DistanceToMesh(Vector3 point)
     {
         // get corresponding spline vertex
         int vertexIndex;
