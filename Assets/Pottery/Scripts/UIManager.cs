@@ -133,12 +133,12 @@ public class UIManager : MonoBehaviour {
         if (Input.GetKeyUp("1"))
         {
             manager.setPushTool();
-            StartCoroutine(showInfoText("Push Tool selected"));
+            StartCoroutine(showInfoText("Remove Tool selected"));
         }
         if (Input.GetKeyUp("2"))
         {
             manager.setPullTool();
-            StartCoroutine(showInfoText("Pull Tool selected"));
+            StartCoroutine(showInfoText("Add Tool selected"));
         }
         if (Input.GetKeyUp("3"))
         {
