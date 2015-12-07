@@ -80,6 +80,7 @@ public class Lathe : MonoBehaviour
         private List<Vector3> vertices;
         private List<Vector2> uv;
         private int[] triangles;
+        private float thickness;
         // ---------------------------
         //////////////////////////////
 
@@ -90,6 +91,7 @@ public class Lathe : MonoBehaviour
         /// <param name="gameObject">The empty <c>GameObject</c> on which the lathe mesh will be drawn</param>
         public LathedObject(List<Vector3> spline, float thickness, GameObject gameObject, int sections, Material mat, Mesh mesh, MeshFilter meshFilter)
         {
+            this.thickness = thickness;
             this.skinnedSpline = getSkinnedSpline(spline, thickness);
             this.spline = this.skinnedSpline; 
             this.gameObject = gameObject;
@@ -100,7 +102,7 @@ public class Lathe : MonoBehaviour
 
             this.mesh = mesh;
 
-            vertices = list2dToSimpleList(verticesList2D);   
+            vertices = list2dToSimpleList(verticesList2D);
             uv = getUVList(vertices);
             triangles = getTriangleArray(verticesList2D);
 
@@ -168,7 +170,7 @@ public class Lathe : MonoBehaviour
         /// <param name="spline">The spline for lathing.</param>
         public void updateMesh(List<Vector3> spline)
         {
-            this.spline = spline;
+            this.spline = getSkinnedSpline(spline, thickness);
             List<List<Vector3>> verticesList2D = getLathedMeshVertices(spline);
             vertices = list2dToSimpleList(verticesList2D);
             mesh.vertices = vertices.ToArray();
