@@ -25,16 +25,22 @@ public static class SplineComparison {
         {
             Directory.CreateDirectory(path);
         }
+        //Export Splines seperatly
+        for(int i = 0; i<userSpline.Count; i++)
+        {
+            Export.exportSpline(userSpline[i].getSpline(), name + "Spline" + i);
+        }
+
         //create File
         StreamWriter streamWriter = File.CreateText(path + name + ".csv");
 
         //Write first column of the csv
         streamWriter.Write("TARGETSHAPE;TIME;DIFFERENCE");
         int numVertices = targetSpline[0].getSize();
-        for (int i = 0; i<numVertices; i++)
+        /*for (int i = 0; i<numVertices; i++)
         {
             streamWriter.Write(";VERTEX: " + i);
-        }
+        }*/
         streamWriter.WriteLine(";;;");
 
         //Write the information to the csv for every shape
@@ -52,10 +58,10 @@ public static class SplineComparison {
 
             //write to the csv file
             streamWriter.Write(i +";"+ time[i] +";" + difference);
-            for (int j = 0; j < user.Length; j++)
+            /*for (int j = 0; j < user.Length; j++)
             {
                 streamWriter.Write("; z:" + user[j].z + " y:" + user[j].y);
-            }
+            }*/
             streamWriter.WriteLine(";;;");
         }
         //Close File

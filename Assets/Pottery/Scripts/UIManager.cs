@@ -66,26 +66,29 @@ public class UIManager : MonoBehaviour {
             //Press space to get to the next step 
         if (Input.GetKeyUp("space") && targetStep != -1)
         {
-            manager.resetAll();
+            
             if (targetStep == 0)
             {
                 userTimes.Add(Time.time - startTime);
             }
             else
             {
-                userTimes.Add(Time.time - getAllTimes());
+                userTimes.Add(Time.time - getAllTimes()- startTime);
             }
             userSplines.Add(manager.getSpline());
-
             targetStep += 1;
+
             if (targetStep == targetCount) {
                 targetStep = 0;
+                
                 targetCanvas.sprite = targetImages[targetStep];
                 Debug.Log("finished!");
                 compareSpline();
-                
+                initLists();
+                startTime = Time.time;
                 return;
             }
+            manager.resetAll();
 
             Debug.Log("next step!");
             //next image
@@ -109,6 +112,7 @@ public class UIManager : MonoBehaviour {
                 targetCanvas.sprite = targetImages[0];
                 targetCanvas.transform.parent.gameObject.SetActive(true);
                 manager.resetAll();
+                startTime = Time.time;
                 StartCoroutine(showInfoText("Target Mode"));
             } else {
                 targetStep = -1;
