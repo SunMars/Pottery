@@ -19,6 +19,7 @@ public class PotteryManager : MonoBehaviour
     [Header("Debug")]
     public LineRenderer lineRenderer;
     public GameObject fingerTipSphere;
+    public GameObject thumbTipSphere;
 
     private Spline spline;
     private Controller m_leapController;
@@ -133,7 +134,7 @@ public class PotteryManager : MonoBehaviour
                             break;
                         case GESTURE.SMOOTH1:
                             {
-                                Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 0.05f; };
+                                Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input) * 1f; };
                                 // spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea*0.5f, currentDeformFunction);
                                 spline.SmoothArea(tipPosition, 0.5f, affectedArea * 0.4f, 8f, currentDeformFunction);
                             }
@@ -158,7 +159,8 @@ public class PotteryManager : MonoBehaviour
                     tipPosition += handController.transform.position;
 
                     // [Debug] moves white sphere to tip Position
-                    fingerTipSphere.transform.position = tipPosition;
+                    //fingerTipSphere.transform.position = tipPosition;
+                    //thumbTipSphere.transform.position = new Vector3(0f,0f,0f);
 
                     float splineDistToPoint = spline.DistanceToPoint(tipPosition);
 
@@ -169,13 +171,13 @@ public class PotteryManager : MonoBehaviour
                             case TOOL.PUSHTOOL1:
                                 {
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 0.8f); };
-                                    spline.PushAtPosition(tipPosition, splineDistToPoint, effectStrength, affectedArea / 2, currentDeformFunction, true);
+                                    spline.PushAtPosition(tipPosition, splineDistToPoint*0.75f, effectStrength, affectedArea / 2, currentDeformFunction, true);
                                 }
                                 break;
                             case TOOL.PULLTOOL1:
                                 {
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Pow(Mathf.Cos(input), 1f); };
-                                    spline.PullAtPosition(tipPosition, effectStrength * 2, affectedArea, currentDeformFunction, true);
+                                    spline.PullAtPosition(tipPosition, effectStrength*1f, affectedArea, currentDeformFunction, true);
                                 }
                                 break;
                             case TOOL.SMOOTHTOOL1:
@@ -183,7 +185,7 @@ public class PotteryManager : MonoBehaviour
                                     Func<float, float> currentDeformFunction = delegate (float input) { return Mathf.Cos(input); };
                                     //reduced affected area
                                     //spline.SmoothAtPosition(tipPosition, effectStrength, affectedArea * 0.2f, currentDeformFunction);
-                                    spline.SmoothArea(tipPosition, 0.5f, affectedArea * 0.5f, 8f, currentDeformFunction);
+                                    spline.SmoothArea(tipPosition, 0.5f, affectedArea * 0.3f, 4f, currentDeformFunction);
 
                                 }
                                 break;
@@ -200,6 +202,10 @@ public class PotteryManager : MonoBehaviour
                 //TODO
                 break;
             default:
+
+                //Debug Spheres
+                //fingerTipSphere.transform.position = new Vector3(0f,0f,0f);
+                //thumbTipSphere.transform.position = new Vector3(0f, 0f, 0f);
                 return; // prevents recalculation of Spline (Modus.None)
         }
 
@@ -256,9 +262,11 @@ public class PotteryManager : MonoBehaviour
 
         // get closest finger
         Vector3 closestFinger = getNearestFinger(hands[0]);
+        //fingerTipSphere.transform.position = closestFinger;
 
         Vector3 thumbPosition = handController.transform.localScale.x * hands[0].Fingers.FingerType(Finger.FingerType.TYPE_THUMB)[0].TipPosition.ToUnityScaled(false);
         thumbPosition += handController.transform.position;
+        //thumbTipSphere.transform.position = thumbPosition;
 
         Vector3 palmPosition = handController.transform.localScale.x * hands[0].PalmPosition.ToUnityScaled(false);
         palmPosition += handController.transform.position;
@@ -274,19 +282,22 @@ public class PotteryManager : MonoBehaviour
 
         GESTURE recognizedGesture;
 
-        if (dotValue < 0.2f && dotValue > -0.2f && spline.DistanceToPoint(palmPosition) <= 0f)
+        if (dotValue < 0.3f && dotValue > -0.3f && spline.DistanceToPoint(palmPosition) <= 0f)
         {
-            //Debug.Log("dotValue:\t" + dotValue + "\tsmoothing");
+            tipPosition = palmPosition;
+            Debug.Log("dotValue:\t" + dotValue + "\tsmoothing");
             recognizedGesture = GESTURE.SMOOTH1;
         }
         else if ((spline.DistanceToPoint(thumbPosition) <= 0f) && (spline.DistanceToPoint(getNearestFinger(hands[0], true)) <= 0f))
         {         // is thumb in obj? & closest in obj => pull
+            tipPosition = getNearestFinger(hands[0], true);
             Debug.Log(thumbPosition + " | " + getNearestFinger(hands[0], true));
             recognizedGesture = GESTURE.PULL1;
         }
         else if (spline.DistanceToPoint(closestFinger) < 0f)
         {        // if closest in obj=> push
-            //Debug.Log("push: "+ spline.DistanceToPoint(closestFinger));
+            tipPosition = getNearestFinger(hands[0]);
+            Debug.Log("push: "+ spline.DistanceToPoint(closestFinger));
             recognizedGesture = GESTURE.PUSH1;
         }
         else
@@ -367,7 +378,7 @@ public class PotteryManager : MonoBehaviour
                 closestFinger = tmp;
             }
         }
-        Debug.Log("closest finger: " + hand.Fingers[index].Type);
+        //Debug.Log("closest finger: " + hand.Fingers[index].Type);
         return closestFinger;
     }
 
