@@ -78,7 +78,7 @@ public class UIManager : MonoBehaviour {
             userSplines.Add(manager.getSpline());
             targetStep += 1;
 
-            if (targetStep == targetCount-1) {
+            if (targetStep == targetCount) {
                 targetStep = 0;
                 
                 targetCanvas.sprite = targetImages[targetStep];
