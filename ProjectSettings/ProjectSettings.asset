@@ -3,11 +3,10 @@
 --- !u!129 &1
 PlayerSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 7
+  serializedVersion: 8
   AndroidProfiler: 0
   defaultScreenOrientation: 4
   targetDevice: 2
-  targetResolution: 0
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: Virality
@@ -15,6 +14,7 @@ PlayerSettings:
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_ShowUnitySplashScreen: 1
+  m_VirtualRealitySplashScreen: {fileID: 0}
   defaultScreenWidth: 1024
   defaultScreenHeight: 768
   defaultScreenWidthWeb: 960
@@ -56,15 +56,19 @@ PlayerSettings:
   xboxEnableKinectAutoTracking: 0
   xboxEnableFitness: 0
   visibleInBackground: 0
+  allowFullscreenSwitch: 1
   macFullscreenMode: 2
   d3d9FullscreenMode: 1
   d3d11FullscreenMode: 1
   xboxSpeechDB: 0
   xboxEnableHeadOrientation: 0
   xboxEnableGuest: 0
+  xboxEnablePIXSampling: 0
   n3dsDisableStereoscopicView: 0
   n3dsEnableSharedListOpt: 1
   n3dsEnableVSync: 0
+  uiUse16BitDepthBuffer: 0
+  ignoreAlphaClear: 0
   xboxOneResolution: 0
   ps3SplashScreen: {fileID: 0}
   videoMemoryForVertexBuffers: 0
@@ -115,6 +119,7 @@ PlayerSettings:
   iPhoneTargetOSVersion: 22
   uIPrerenderedIcon: 0
   uIRequiresPersistentWiFi: 0
+  uIRequiresFullScreen: 1
   uIStatusBarHidden: 1
   uIExitOnSuspend: 0
   uIStatusBarStyle: 0
@@ -128,6 +133,10 @@ PlayerSettings:
   iPadHighResPortraitSplashScreen: {fileID: 0}
   iPadLandscapeSplashScreen: {fileID: 0}
   iPadHighResLandscapeSplashScreen: {fileID: 0}
+  appleTVSplashScreen: {fileID: 0}
+  tvOSSmallIconLayers: []
+  tvOSLargeIconLayers: []
+  tvOSTopShelfImageLayers: []
   iOSLaunchScreenType: 0
   iOSLaunchScreenPortrait: {fileID: 0}
   iOSLaunchScreenLandscape: {fileID: 0}
@@ -291,7 +300,12 @@ PlayerSettings:
   playerPrefsSupport: 0
   ps4ReprojectionSupport: 0
   ps4UseAudio3dBackend: 0
+  ps4SocialScreenEnabled: 0
   ps4Audio3dVirtualSpeakerCount: 14
+  ps4attribCpuUsage: 0
+  ps4PatchPkgPath: 
+  ps4PatchLatestPkgPath: 
+  ps4PatchChangeinfoPath: 
   ps4attribUserManagement: 0
   ps4attribMoveSupport: 0
   ps4attrib3DSupport: 0
@@ -348,10 +362,6 @@ PlayerSettings:
   spritePackerPolicy: 
   scriptingDefineSymbols: {}
   metroPackageName: pottery
-  metroPackageLogo: 
-  metroPackageLogo140: 
-  metroPackageLogo180: 
-  metroPackageLogo240: 
   metroPackageVersion: 1.0.0.0
   metroCertificatePath: 
   metroCertificatePassword: 
@@ -359,44 +369,32 @@ PlayerSettings:
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
   metroApplicationDescription: Pottery with Leap Motion
-  metroStoreTileLogo80: Assets/Pottery/Icons/AppLogo/app_logo_120px.png
-  metroStoreTileLogo: Assets/Pottery/Icons/AppLogo/app_logo_150px.png
-  metroStoreTileLogo140: Assets/Pottery/Icons/AppLogo/app_logo_210px.png
-  metroStoreTileLogo180: Assets/Pottery/Icons/AppLogo/app_logo_270px.png
-  metroStoreTileWideLogo80: 
-  metroStoreTileWideLogo: 
-  metroStoreTileWideLogo140: 
-  metroStoreTileWideLogo180: 
-  metroStoreTileSmallLogo80: Assets/Pottery/Icons/AppLogo/app_logo_24px.png
-  metroStoreTileSmallLogo: Assets/Pottery/Icons/AppLogo/app_logo_30px.png
-  metroStoreTileSmallLogo140: Assets/Pottery/Icons/AppLogo/app_logo_42px.png
-  metroStoreTileSmallLogo180: Assets/Pottery/Icons/AppLogo/app_logo_54px.png
-  metroStoreSmallTile80: Assets/Pottery/Icons/AppLogo/app_logo_56px.png
-  metroStoreSmallTile: Assets/Pottery/Icons/AppLogo/app_logo_70px.png
-  metroStoreSmallTile140: Assets/Pottery/Icons/AppLogo/app_logo_98px.png
-  metroStoreSmallTile180: Assets/Pottery/Icons/AppLogo/app_logo_126px.png
-  metroStoreLargeTile80: Assets/Pottery/Icons/AppLogo/app_logo_248px.png
-  metroStoreLargeTile: Assets/Pottery/Icons/AppLogo/app_logo_310px.png
-  metroStoreLargeTile140: Assets/Pottery/Icons/AppLogo/app_logo_434px.png
-  metroStoreLargeTile180: Assets/Pottery/Icons/AppLogo/app_logo_558px.png
-  metroStoreSplashScreenImage: 
-  metroStoreSplashScreenImage140: 
-  metroStoreSplashScreenImage180: 
-  metroPhoneAppIcon: Assets/Pottery/Icons/AppLogo/app_logo_44px.png
-  metroPhoneAppIcon140: Assets/Pottery/Icons/AppLogo/app_logo_62px.png
-  metroPhoneAppIcon240: Assets/Pottery/Icons/AppLogo/app_logo_106px.png
-  metroPhoneSmallTile: Assets/Pottery/Icons/AppLogo/app_logo_71px.png
-  metroPhoneSmallTile140: Assets/Pottery/Icons/AppLogo/app_logo_99px.png
-  metroPhoneSmallTile240: Assets/Pottery/Icons/AppLogo/app_logo_170px.png
-  metroPhoneMediumTile: Assets/Pottery/Icons/AppLogo/app_logo_150px.png
-  metroPhoneMediumTile140: Assets/Pottery/Icons/AppLogo/app_logo_210px.png
-  metroPhoneMediumTile240: Assets/Pottery/Icons/AppLogo/app_logo_360px.png
-  metroPhoneWideTile: 
-  metroPhoneWideTile140: 
-  metroPhoneWideTile240: 
-  metroPhoneSplashScreenImage: 
-  metroPhoneSplashScreenImage140: 
-  metroPhoneSplashScreenImage240: 
+  wsaImages:
+    720976: Assets/Pottery/Icons/AppLogo/app_logo_120px.png
+    720996: Assets/Pottery/Icons/AppLogo/app_logo_150px.png
+    721036: Assets/Pottery/Icons/AppLogo/app_logo_210px.png
+    721076: Assets/Pottery/Icons/AppLogo/app_logo_270px.png
+    852048: Assets/Pottery/Icons/AppLogo/app_logo_24px.png
+    852068: Assets/Pottery/Icons/AppLogo/app_logo_30px.png
+    852108: Assets/Pottery/Icons/AppLogo/app_logo_42px.png
+    852148: Assets/Pottery/Icons/AppLogo/app_logo_54px.png
+    917584: Assets/Pottery/Icons/AppLogo/app_logo_56px.png
+    917604: Assets/Pottery/Icons/AppLogo/app_logo_70px.png
+    917644: Assets/Pottery/Icons/AppLogo/app_logo_98px.png
+    917684: Assets/Pottery/Icons/AppLogo/app_logo_126px.png
+    983120: Assets/Pottery/Icons/AppLogo/app_logo_248px.png
+    983140: Assets/Pottery/Icons/AppLogo/app_logo_310px.png
+    983180: Assets/Pottery/Icons/AppLogo/app_logo_434px.png
+    983220: Assets/Pottery/Icons/AppLogo/app_logo_558px.png
+    1376356: Assets/Pottery/Icons/AppLogo/app_logo_44px.png
+    1376396: Assets/Pottery/Icons/AppLogo/app_logo_62px.png
+    1376496: Assets/Pottery/Icons/AppLogo/app_logo_106px.png
+    1441892: Assets/Pottery/Icons/AppLogo/app_logo_71px.png
+    1441932: Assets/Pottery/Icons/AppLogo/app_logo_99px.png
+    1442032: Assets/Pottery/Icons/AppLogo/app_logo_170px.png
+    1507428: Assets/Pottery/Icons/AppLogo/app_logo_150px.png
+    1507468: Assets/Pottery/Icons/AppLogo/app_logo_210px.png
+    1507568: Assets/Pottery/Icons/AppLogo/app_logo_360px.png
   metroTileShortName: Pottery
   metroCommandLineArgsFile: 
   metroTileShowName: 0
@@ -405,7 +403,7 @@ PlayerSettings:
   metroWideTileShowName: 1
   metroDefaultTileSize: 1
   metroTileForegroundText: 1
-  metroTileBackgroundColor: {r: .0449826978, g: .382352948, b: .0612695664, a: 1}
+  metroTileBackgroundColor: {r: 0.044982698, g: 0.38235295, b: 0.061269566, a: 1}
   metroSplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 1}
   metroSplashScreenUseBackgroundColor: 0
   platformCapabilities:
@@ -527,7 +525,6 @@ PlayerSettings:
   WebGL::emscriptenArgs: 
   WebGL::template: APPLICATION:Default
   additionalIl2CppArgs::additionalIl2CppArgs: 
-  firstStreamedSceneWithResources: 0
   cloudProjectId: 
   projectName: 
   organizationId: 
